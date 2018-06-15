@@ -17,6 +17,7 @@ Prior to starting these labs, you must have the following operating system and s
 | Service Fabric Tools 3.1.274 | [/download.microsoft.com/service-fabric-tools](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-get-started)
 | Bot Builder SDK 3.15 or higher | [/download.microsoft.com/bot-builder-sdk](https://docs.microsoft.com/en-us/azure/bot-service/dotnet/bot-builder-dotnet-overview?view=azure-bot-service-3.0)
 | Visual Studio 2017 Enterprise | [/code.visualstudio.com/download](https://www.visualstudio.com/downloads) |
+| Lab Code Template | [/VS C# Template](https://github.com/aforank/workshop-AIP-APPS-TW200/blob/master/template.zip) |
 
 ---
 
