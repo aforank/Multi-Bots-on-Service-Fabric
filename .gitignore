@@ -1,0 +1,45 @@
+################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+# It was then extended by hand with a subset of the values in https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
+################################################################################
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.dbmdl
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# ReSharper is a .NET coding add-in
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# NuGet Packages
+*.nupkg
+# The packages folder can be ignored because of Package Restore
+**/packages/*
+# except build/, which is used as an MSBuild target.
+!**/packages/build/
+
+*.dacpac
+*.pdb
+*.log
+*.Cache
+*.pubxml

@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="fabric:/OneBank.FabricApp" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+  <Parameters>
+    <Parameter Name="OneBank.AccountsBot_InstanceCount" Value="-1" />
+    <Parameter Name="OneBank.InsuranceBot_InstanceCount" Value="-1" />
+    <Parameter Name="OneBank.MasterBot_InstanceCount" Value="-1" />
+    <Parameter Name="BotStateActorService_PartitionCount" Value="1" />
+    <Parameter Name="BotStateActorService_TargetReplicaSetSize" Value="1" />
+    <Parameter Name="BotStateActorService_MinReplicaSetSize" Value="1" />
+  </Parameters>
+</Application>
