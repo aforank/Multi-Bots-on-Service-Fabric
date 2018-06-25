@@ -308,7 +308,7 @@
 
 2. In `OneBank.Common` project, create a new empty C# interface by the name of `IHttpCommunicationClientFactory`
     ~~~csharp
-    namespace Gorenje.DA.Fabric.Communication.HttpCommunication
+    namespace OneBank.Common
     {
         using Microsoft.ServiceFabric.Services.Communication.Client;
 
