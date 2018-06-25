@@ -13,7 +13,7 @@ In this lab, you will create and configure fabric resource cluster, API manageme
 
 4. Provide Resource Group Name as &quot;OneBankRG&quot;, Resource Group Location as &quot;West US&quot; and Click **Create**.
 
-      ![alt text](https://asfabricstorage.blob.core.windows.net/lab1images/3.png)
+      ![alt text](https://asfabricstorage.blob.core.windows.net/lab1images/34.png)
 
 **Exercise 2: Create a new Azure API Management service instance**
 
