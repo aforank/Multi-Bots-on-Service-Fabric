@@ -22,7 +22,7 @@ In this lab, you will create and configure fabric resource cluster, API manageme
 
       ![alt text](https://asfabricstorage.blob.core.windows.net/lab1images/4.png)
 
-3. Once the API Management is deployed, Copy the Developer Portal URL (to be sued in Bot channel registration)
+3. Once the API Management is deployed, Copy the Developer Portal URL (to be used in Bot channel registration)
 
       ![alt text](https://asfabricstorage.blob.core.windows.net/lab1images/5.png)
 
