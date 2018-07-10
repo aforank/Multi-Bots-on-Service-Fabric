@@ -1,4 +1,3 @@
-
 ##### In this lab, you will create and host multiple child bots orchestrated by a master bot on top of Azure Service Fabric for OneBank Corp. Ltd. These child bots will serve different domains of a banking sector. First, you will create and host a MasterBot which helps in forwarding the incoming request to multiple child bots, then you will develop business-specific child bots such as AccountsBot for Account Management and InsuranceBot to Buy Insurance.  
 
 ## Excercise 1 : Developing & Hosting Master, Accounts and Insurance Bots
@@ -234,31 +233,31 @@
 1. On top of the Visual Studio, click on `Start` button to run the application.
     >Please make sure to set the `OneBank.FabricApp` as your Startup project. Since you are running the application for the first time, it may take a couple of minutes to boot up the cluster.
 
-    ![startApp]
+    ![startApp](https://asfabricstorage.blob.core.windows.net:443/images/19.png)
 
 2. A pop-up may appear to seek permission to `Refresh Application` on the cluster. Click `Yes` as shown in the screenshot.
 
-    ![refreshApp]
+    ![refreshApp](https://asfabricstorage.blob.core.windows.net:443/images/18.png)
 
 3. On the bottom right of the desktop, click on `^` icon, then look for service fabric icon, right-click on it choose the first option `Manage Local Cluster`.
 
-    ![openLocalCluster]
+    ![openLocalCluster](https://asfabricstorage.blob.core.windows.net:443/images/33.png)
 
 4. Service Fabric explorer will appear in internet explorer. Compare the state of your application as shown in the screenshot below
 
-    ![localClusterState]
+    ![localClusterState](https://asfabricstorage.blob.core.windows.net:443/images/34.png)
 
 5. Navigate to Desktop, and double click on Bot Framework Emulator
 
-    ![startBotEmulator]
+    ![startBotEmulator](https://asfabricstorage.blob.core.windows.net:443/images/20.png)
 
 6. Set the URL `http://localhost:8770/api/messages` (MasterBot) in the Address bar located at the top of the emulator. And then click `Connect` as shown in the screenshot below. As soon as you click it, you would see a few log traces at the bottom right of the screen. If the response code is 202, then everything has been configured correctly so far.
 
-    ![setBotUrl]
+    ![setBotUrl](https://asfabricstorage.blob.core.windows.net:443/images/21.png)
 
 7. In the extreme bottom of the Emulator, under **Type your message** pane, Type `Hi` and wait for the response. That's how it should ideally look like
 
-    ![sayHi]
+    ![sayHi](https://asfabricstorage.blob.core.windows.net:443/images/22.png)
 
 ## Excercise 2 : Forward incoming requests from Master Bot to Child bots
 
@@ -689,7 +688,7 @@
 **Task V: Let's re-run the bot again and see what happens this time**
 
 1. Looks like master bot was able to forward the request to the AccountsBot, but something down the line is failing and due to this we get an error back. This happens due to the absence of Bot State in all 3 bots. So, let's move on to next exercise to develop the bot state.
-    ![botStateError]
+    ![botStateError](https://asfabricstorage.blob.core.windows.net:443/images/23.png)
 
 ## Excercise 3 : Service Fabric Bot State
 
@@ -1107,17 +1106,17 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 **Task III: Run the bot again and observe the differences as compared to the result of Excercise 2**
 
 1. This time the Master bot has forwarded the request to the Accounts bot without any errors.
-    ![botStateSuccess]
+    ![botStateSuccess](https://asfabricstorage.blob.core.windows.net:443/images/24.png)
 
 2. You will notice that our newly created Service Fabric based Bot State is working and emitting logs
-    ![botStateActorEvents]
+    ![botStateActorEvents](https://asfabricstorage.blob.core.windows.net:443/images/25.png)
 
 3. Since, we have made a few changes to the `MasterRootDialog` to persist the session affinity between the user and the child bot, We may now also do a small test to see the results for the same. 
     - In the extreme bottom, inside **Type your message** pane, Type `Hi` and wait for the response.   
     - Once the response appears, Select `Account Management` from the Hero card and wait for the response from the AccountsBot
     - Now once again type something in the text box and observe the response. You should notice that the reply is coming from the Accounts Bot instead of Master Bot.
 
-    ![stickyChildBots]
+    ![stickyChildBots](https://asfabricstorage.blob.core.windows.net:443/images/26.png)
 
 ## Excersice 4 : Enable Authentication
 
@@ -1245,17 +1244,17 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPa
 **Task III: Observe the changes**
 
 1. First, run the application without specifying the MicrosoftAppId and MicrosoftAppPassword. You would see a 401 response at the bottom right of the emulator as shown in the screenshot below.
-![botAuthenticationError]
+![botAuthenticationError](https://asfabricstorage.blob.core.windows.net:443/images/27.png)
 
 2. Now, Specify the MicrosoftAppId and MicrosoftPassword and click connect as shown in the screenshot below. This time it should be working absolutely fine.
-![botAuthenticationPassed]
+![botAuthenticationPassed](https://asfabricstorage.blob.core.windows.net:443/images/28.png)
 
 ### Excercise 5 : Logging
 
 **Task I:** Setup Application Insights 
 1. Install Nuget package `ApplicationInsights.OwinExtensions`
-![nuGetForSolution]
-![aiNugetPackage]
+![nuGetForSolution](https://asfabricstorage.blob.core.windows.net:443/images/29.png)
+![aiNugetPackage](https://asfabricstorage.blob.core.windows.net:443/images/31.png)
 
 2. In all three Startup.cs files across the solution, add the below code snippet as the first step
     ~~~csharp
@@ -1310,21 +1309,4 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPa
     ~~~
 
 5. Run the bot over again and send some messages. Then wait for a few seconds and check the Request being tracked automatically in the Azure Portal as shown below
-![aiAzurePortal]
-
-[startApp]: https://asfabricstorage.blob.core.windows.net:443/images/19.png
-[refreshApp]: https://asfabricstorage.blob.core.windows.net:443/images/18.png
-[startBotEmulator]: https://asfabricstorage.blob.core.windows.net:443/images/20.png
-[setBotUrl]: https://asfabricstorage.blob.core.windows.net:443/images/21.png
-[sayHi]: https://asfabricstorage.blob.core.windows.net:443/images/22.png
-[botStateError]: https://asfabricstorage.blob.core.windows.net:443/images/23.png
-[botStateSuccess]: https://asfabricstorage.blob.core.windows.net:443/images/24.png
-[botStateActorEvents]: https://asfabricstorage.blob.core.windows.net:443/images/25.png
-[stickyChildBots]: https://asfabricstorage.blob.core.windows.net:443/images/26.png
-[botAuthenticationError]: https://asfabricstorage.blob.core.windows.net:443/images/27.png
-[botAuthenticationPassed]: https://asfabricstorage.blob.core.windows.net:443/images/28.png
-[nuGetForSolution]: https://asfabricstorage.blob.core.windows.net:443/images/29.png
-[aiNugetPackage]: https://asfabricstorage.blob.core.windows.net:443/images/31.png
-[aiAzurePortal]: https://asfabricstorage.blob.core.windows.net:443/images/32.png
-[openLocalCluster]: https://asfabricstorage.blob.core.windows.net:443/images/33.png
-[localClusterState]: https://asfabricstorage.blob.core.windows.net:443/images/34.png
+![aiAzurePortal](https://asfabricstorage.blob.core.windows.net:443/images/32.png)
