@@ -1,5 +1,17 @@
 ##### In this lab, you will create and host multiple child bots orchestrated by a master bot on top of Azure Service Fabric for OneBank Corp. Ltd. These child bots will serve different domains of a banking sector. First, you will create and host a MasterBot which helps in forwarding the incoming request to multiple child bots, then you will develop business-specific child bots such as AccountsBot for Account Management and InsuranceBot to Buy Insurance.  
 
+## Pre-requisite : Download and Unzip the Visual Studio Template.
+
+*This template contains the Visual Studio solution which consists of multiple projects with necessary Nuget packages and configuration required to complete this lab*
+
+1. Copy this URL https://github.com/aforank/workshop-AIP-APPS-TW200/blob/master/template.zip
+2. Open Internet Explorer in the lab VM.
+3. Paste the link and hit enter.
+4. Navigate to the download location
+5. Unzip the template
+6. Double click on the Visual Studio solution file
+7. Try to build the solution to make sure that there are no errors.
+
 ## Excercise 1 : Developing & Hosting Master, Accounts and Insurance Bots
 
 *Since every service inside Azure Service Fabric is a console application, and Bot projects are meant to run on a Web-based application. You will first have to prepare the bot projects to run on an Http endpoint. We will achieve this by Self-hosting the Web API using OWIN.*
