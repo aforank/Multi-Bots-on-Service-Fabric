@@ -9,8 +9,7 @@
 1. In Visual Studio Solution Explorer, locate the `OneBank.Common` project and create a new C# class by right-clicking on the project.
 2. Name this class as `OwinCommunicationListener` and replace it with following.
 
-@[open and copy the script file](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\1.txt"`)
-
+@[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\1.txt"`)
     ~~~csharp
     namespace OneBank.Common
     {
@@ -109,6 +108,7 @@
 
 3. In Visual Studio Solution Explorer, locate the `OneBank.MasterBot` project and double click on `MasterBot.cs` file.
 4. Find the method `CreateServiceInstanceListeners`, and replace the definition with following code.
+@[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\1.txt"`)
     ~~~csharp
     protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
     {
