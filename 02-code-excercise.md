@@ -1199,7 +1199,10 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 
 **Task I: Modify StartUp.cs class of MasterBot and replace the MicrosoftAppId and MicrosoftAppPassword with the actual value.**
 
-1. Collect the value of MicrosoftAppId and MicrosoftAppPassword from Azure portal (As shown in Lab 1)
+1. Collect the value of MicrosoftAppId and MicrosoftAppPassword from Azure portal (As shown in Lab 2) or you may use these values for testing purposes.
+    
+    AppId - a8fe8368-9518-4fec-9717-fdbc156febcc
+    AppPassword - wwcxoNKF36?{hqNPEU484%%
 
 2. Place the value of MicrosoftAppId and MicrosoftAppPassword in the double quotes below and paste the code snippet inside the Startup class of `MasterBot`
 
@@ -1341,12 +1344,15 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPa
 
 ### Excercise 5 : Logging
 
-**Task I:** Setup Application Insights 
-1. Install Nuget package `ApplicationInsights.OwinExtensions`
+**Task I:** Setup Application Insights
+
+1. Get the Azure Application Insights Instrumentation key from your Azure account as shown in Lab 2.
+
+2. Install Nuget package `ApplicationInsights.OwinExtensions`
 ![nuGetForSolution](https://asfabricstorage.blob.core.windows.net:443/images/29.png)
 ![aiNugetPackage](https://asfabricstorage.blob.core.windows.net:443/images/31.png)
 
-2. In all three Startup.cs files across the solution, add the below code snippet as the first step
+3. In all three Startup.cs files across the solution, add the below code snippet as the first step
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\42.txt"`)
     ~~~csharp
@@ -1355,14 +1361,14 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPa
     appBuilder.UseApplicationInsights(null, new OperationIdContextMiddlewareConfiguration { OperationIdFactory = IdFactory.FromHeader("X-My-Operation-Id") });
     ~~~
 
-3. In `MasterBotRootDialog`, look for `ForwardToChildBot` method and add the below line anywhere before sending the http request.
+4. In `MasterBotRootDialog`, look for `ForwardToChildBot` method and add the below line anywhere before sending the http request.
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\43.txt"`)
     ~~~csharp
     targetRequest.Headers.Add("X-My-Operation-Id", OperationContext.Get().OperationId);
     ~~~
 
-4.  That's how your `ForwardToChildBot` method in `MasterRootDialog` should look like at the end.
+5.  That's how your `ForwardToChildBot` method in `MasterRootDialog` should look like at the end.
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\44.txt"`)
     ~~~csharp
@@ -1404,5 +1410,5 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPa
         }
     ~~~
 
-5. Run the bot over again and send some messages. Then wait for a few seconds and check the Request being tracked automatically in the Azure Portal as shown below
+6. Run the bot over again and send some messages. Then wait for a few seconds and check the Request being tracked automatically in the Azure Portal as shown below
 ![aiAzurePortal](https://asfabricstorage.blob.core.windows.net:443/images/32.png)
