@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace OneBank.AccountsBot.Dialogs
 {
     [Serializable]
-    public class InsuranceEchoDialog
+    public class InsuranceEchoDialog : IDialog<object>
     {
         private int count = 1;
 

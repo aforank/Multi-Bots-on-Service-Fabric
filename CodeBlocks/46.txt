@@ -1,0 +1,17 @@
+[HttpPost]
++        [Route("")]
++        public async Task<HttpResponseMessage> Post([FromBody] Activity activity)
++        {
++            if (activity != null && activity.GetActivityType() == ActivityTypes.Message)
++            {
++                // New Addition
++                await Conversation.SendAsync(activity, () => new MasterRootDialog());
++                // New Addition
++            }
++            else
++            {
++                this.HandleSystemMessage(activity);
++            }
++
++            return new HttpResponseMessage(HttpStatusCode.Accepted);
++        }

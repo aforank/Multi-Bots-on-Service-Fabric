@@ -9,21 +9,10 @@ public class MasterRootDialog : IDialog<object>
 
     public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
     {
-        if (currentBotCtx == "Accounts")
-        {
-            await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.AccountsBot", "api/messages", context.Activity);
-        }
-        else if (currentBotCtx == "Insurance")
-        {
-            await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.InsuranceBot", "api/messages", context.Activity);
-        }
-        else
-        {
-            await context.PostAsync("Hello there! Welcome to OneBank.");
-            await context.PostAsync("I am the Master bot");
+        await context.PostAsync("Hello there! Welcome to OneBank.");
+        await context.PostAsync("I am the Master bot");
 
-            PromptDialog.Choice(context, ResumeAfterChoiceSelection, new List<string>() { "Account Management", "Buy Insurance" }, "What would you like to do today?");
-        }                      
+        PromptDialog.Choice(context, ResumeAfterChoiceSelection, new List<string>() { "Account Management", "Buy Insurance" },  "What would you like to do today?");
     }
 
     private async Task ResumeAfterChoiceSelection(IDialogContext context, IAwaitable<string> result)
@@ -59,8 +48,6 @@ public class MasterRootDialog : IDialog<object>
                 Content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json"),
                 RequestUri = new Uri($"{x.HttpEndPoint}/{path}")
             };
-
-            targetRequest.Headers.Add("X-My-Operation-Id", OperationContext.Get().OperationId);
 
             if (headers != null)
             {
