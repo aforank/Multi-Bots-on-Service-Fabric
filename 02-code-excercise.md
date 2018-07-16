@@ -9,7 +9,7 @@
 1. In Visual Studio Solution Explorer, locate the `OneBank.Common` project and create a new C# class by right-clicking on the project.
 2. Name this class as `OwinCommunicationListener` and replace it with following.
 
-@[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\1.txt"`)
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\1.txt"`)
     ~~~csharp
     namespace OneBank.Common
     {
@@ -108,7 +108,7 @@
 
 3. In Visual Studio Solution Explorer, locate the `OneBank.MasterBot` project and double click on `MasterBot.cs` file.
 4. Find the method `CreateServiceInstanceListeners`, and replace the definition with following code.
-@[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\1.txt"`)
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\2.txt"`)
     ~~~csharp
     protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
     {
@@ -121,7 +121,8 @@
     }
     ~~~
 
-5. In `OneBank.MasterBot` project, locate the `ServiceManifest.xml` file and add an HTTP endpoint inside the `<Endpoints>` element. 
+5. In `OneBank.MasterBot` project, locate the `ServiceManifest.xml` file and add an HTTP endpoint inside the `<Endpoints>` element.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\3.txt"`)
     ~~~xml
     <Resources>
         <Endpoints>
@@ -134,6 +135,7 @@
 
 6. Similarly, locate the `OneBank.AccountsBot`project and double click on AccountsBot.cs file.
 7. Find the method `CreateServiceInstanceListeners`, and replace the definition with following code.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\4.txt"`)
     ~~~csharp
     protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
     {
@@ -147,6 +149,7 @@
     ~~~
 
 8. In `OneBank.AccountsBot` project, locate the `ServiceManifest.xml` file and add an HTTP endpoint inside the `<Endpoints>` element.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\5.txt"`)
     ~~~xml
     <Resources>
         <Endpoints>
@@ -156,6 +159,7 @@
     ~~~
 
 9. Again, you would do the same for the InsuranceBot by replacing the definition for `CreateServiceInstanceListeners` with following code
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\6.txt"`)
     ~~~csharp
     protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
     {
@@ -169,6 +173,7 @@
     ~~~
   
 10. And then, add an endpoint in the ServiceManifest.xml file under `<Endpoints>` element.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\7.txt"`)
     ~~~xml
     <Resources>
         <Endpoints>
@@ -182,6 +187,7 @@
 
 1. In `OneBank.MasterBot` project, locate the `Dialogs` folder and add a new C# class.
 2. Name this class as `MasterRootDialog` and replace the existing code with following class.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\8.txt"`)
     ~~~csharp
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Connector;
@@ -269,6 +275,7 @@
 **Task I: Create and Register Http Communication Client** 
 
 1. In `OneBank.Common` project, create a new C# class by the name of `HttpCommunicationClient` and replace it with the following
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\9.txt"`)
     ~~~csharp
     using Newtonsoft.Json.Linq;
     using System;
@@ -309,6 +316,7 @@
     ~~~
 
 2. In `OneBank.Common` project, create a new empty C# interface by the name of `IHttpCommunicationClientFactory`
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\10.txt"`)
     ~~~csharp
     namespace OneBank.Common
     {
@@ -321,6 +329,7 @@
     ~~~
 
 3. Add another class in `OneBank.Common` project and name it as HttpCommunicationClientFactory
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\11.txt"`)
     ~~~csharp
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using System;
@@ -367,6 +376,7 @@
     ~~~
 
 4. In `OneBank.MasterBot` project, locate the Startup.cs class and register the `HttpCommunicationClientFactory` created in the previous step
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\12.txt"`)
     ~~~csharp
     Conversation.UpdateContainer(
                     builder =>
@@ -379,6 +389,7 @@
     ~~~
 
 5. That's how your Startup.cs class of MasterBot should look like
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\13.txt"`)
     ~~~csharp
     public static class Startup
     {
@@ -426,6 +437,7 @@
 **Task II: Modify `MasterRootDialog` class created in `Excercise 1`**
 
 1. In `OneBank.MasterBot` project, find the `MasterRootDialog` class and append new method called `ForwardToChildBot` as shown below.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\14.txt"`)
     ~~~csharp
     public async Task<HttpResponseMessage> ForwardToChildBot(string serviceName, string path, object model, IDictionary<string, string> headers = null)
     {
@@ -465,6 +477,7 @@
 
     with
 
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\15.txt"`)
     ~~~csharp
     await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.AccountsBot", "api/messages", context.Activity);
     ~~~
@@ -475,12 +488,14 @@
     ~~~
 
     with
-
+    
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\16.txt"`)
     ~~~csharp
     await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.InsuranceBot", "api/messages", context.Activity);
     ~~~
 
 4. That's how your `MasterRootDialog` should look like now
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\17.txt"`)
     ~~~csharp
     [Serializable]
     public class MasterRootDialog : IDialog<object>
@@ -566,6 +581,7 @@
 
 1. In `OneBank.AccountsBot` project, locate the `Dialogs` folder, and add a new C# class.
 2. Name this class as `AccountsEchoDialog` and replace the existing code with below class.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\18.txt"`)
     ~~~csharp
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Connector;
@@ -600,11 +616,13 @@
     ~~~
 
 3. Locate the `AccountsBotController` under `Controllers` folder and add the following line inside if condition of the Post method
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\19.txt"`)
     ~~~csharp
     await Conversation.SendAsync(activity, () => new AccountsEchoDialog());
     ~~~
 
 4. That's how your Post method should look
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\20.txt"`)
     ~~~csharp
     [HttpPost]
         [Route("")]
@@ -629,6 +647,7 @@
 
 1. In `OneBank.InsuranceBot` project, locate the `Dialogs` folder and add a new C# class.
 2. Name this class as `InsuranceEchoDialog` and replace the existing code with the following class.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\21.txt"`)
     ~~~csharp
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Connector;
@@ -663,11 +682,13 @@
     ~~~
 
 3. Locate the InsuranceBotController and add the following line inside the `if` condition of the `Post` method
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\22.txt"`)
     ~~~csharp
     await Conversation.SendAsync(activity, () => new InsuranceEchoDialog());
     ~~~
 
 4. That's how your Post method should look
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\23.txt"`)
     ~~~csharp
     [HttpPost]
     [Route("")]
@@ -701,6 +722,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 **Task I: Create Stateful Reliable Actors** 
 
 1. In `OneBank.BotStateActor.Interface`, locate the `IBotStateActor` interface and add the following four methods
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\24.txt"`)
     ~~~csharp
     Task<BotStateContext> GetBotStateAsync(string key, CancellationToken cancellationToken);
 
@@ -712,6 +734,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     ~~~
 
 2. In `OneBank.BotStateActor.Interface`, create a new model class by the name of BotStateContext to store the BotData.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\25.txt"`)
     ~~~csharp
     using System;
 
@@ -738,6 +761,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     ~~~
 
 3. In `OneBank.BotStateActor` project, find the BotStateActor.cs class and replace the existing code with following code.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\26.txt"`)
     ~~~csharp
     using System;
     using System.Collections.Generic;
@@ -811,6 +835,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     ~~~
 
 4. In `OneBank.Common` project create a new class by the name of ServiceFabricBotDataStore and replace the exisitng code with following
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\27.txt"`)
     ~~~csharp
     namespace OneBank.Common
     {
@@ -960,6 +985,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     ~~~
 
 5. In `OneBank.MasterBot`, find the Startup.cs file, under Conversation.UpdateContainer section, add the following code
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\28.txt"`)
     ~~~csharp
     var store = new ServiceFabricBotDataStore("Master");
                         builder.Register(c => new CachingBotDataStore(store, CachingBotDataStoreConsistencyPolicy.LastWriteWins))
@@ -969,6 +995,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     ~~~ 
 
 6. That's how your Startup class of MasterBot should look like.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\29.txt"`)
     ~~~csharp
     public static class Startup
     {
@@ -1016,6 +1043,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     ~~~
 
 7. In `OneBank.AccountsBot`, find the Startup.cs file, under Conversation.UpdateContainer section, add the following code
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\30.txt"`)
     ~~~csharp
     Conversation.UpdateContainer(
                     builder =>
@@ -1032,6 +1060,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     > The value in the constructor of `ServiceFabricBotDataStore` must be different for all bots. 
 
 8. In `OneBank.InsuranceBot`, locate the Startup.cs file, under Conversation.UpdateContainer section, add the following code
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\31.txt"`)
     ~~~csharp
     Conversation.UpdateContainer(
                     builder =>
@@ -1050,6 +1079,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 **Task II: Modify the `MasterRootDialog` class in `OneBank.MasterBot` to persist the selection made by the user in the first prompt. We should do this to maintain the sticky session between the end-user and the child bot so that all subsequent requests directly goes to child bot without performing any redirection logic again on the MasterBot.**
 
 1. In `MasterRootDialog`, locate `ResumeAfterChoiceSelection` method and replace the exisitng definitation with the following code 
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\32.txt"`)
     ~~~csharp
     private async Task ResumeAfterChoiceSelection(IDialogContext context, IAwaitable<string> result)
     {
@@ -1083,6 +1113,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     ~~~
 
 2. In `MasterRootDialog`, locate `ResumeAfterChoiceSelection` method and replace the exisitng definitation with the following code 
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\33.txt"`)
     ~~~csharp
     public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
     {
@@ -1127,7 +1158,8 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 
 1. Collect the value of MicrosoftAppId and MicrosoftAppPassword from Azure portal (As shown in Lab 1)
 
-2. Place the value of MicrosoftAppId and MicrosoftAppPassword in the double quotes below and paste the code snippet inside the Startup class of `MasterBot` 
+2. Place the value of MicrosoftAppId and MicrosoftAppPassword in the double quotes below and paste the code snippet inside the Startup class of `MasterBot`
+@[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\34.txt"`)
 ~~~csharp
 config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPassword = "" });
             var microsoftAppCredentials = Conversation.Container.Resolve<MicrosoftAppCredentials>();
@@ -1136,6 +1168,7 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPa
 ~~~
 
 3. Place the same values you retrieved in step 1 and paste the code snippet inside the Startup class of `AccountsBot`
+@[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\35.txt"`)
 ~~~csharp
 config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPassword = "" });
             var microsoftAppCredentials = Conversation.Container.Resolve<MicrosoftAppCredentials>();
@@ -1144,7 +1177,7 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPa
 ~~~
 
 3. Similarly, place the same values you retrieved in step 1 and paste the code snippet inside the Startup class of `InsuranceBot`
-
+@[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\36.txt"`)
 ~~~csharp
 config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPassword = "" });
             var microsoftAppCredentials = Conversation.Container.Resolve<MicrosoftAppCredentials>();
@@ -1158,6 +1191,7 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPa
 
 1. In `OneBank.Common` project, create a new C# class by right-clicking on the project
 2. Name this class as `RequestCallContext` and replace the existing code with the following.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\37.txt"`)
     ~~~csharp
     namespace OneBank.Common
     {
@@ -1172,13 +1206,13 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPa
     ~~~
 
 3. In `OneBank.MasterBot` project, under Controllers folder, double click on MasterBotController class, and add as a first line in the POST method. 
-
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\38.txt"`)
     ~~~csharp
     RequestCallContext.AuthToken.Value = $"Bearer {this.Request.Headers.Authorization.Parameter}";
     ~~~
 
 4. That's how your MasterBotController's POST method should look
-
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\39.txt"`)
     ~~~csharp
         [HttpPost]
         [Route("")]
@@ -1202,11 +1236,13 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPa
     ~~~
 
 5.  In `MasterBotRootDialog`, look for `ForwardToChildBot` method and add the below line anywhere before sending the http request.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\40.txt"`)
     ~~~csharp
     targetRequest.Headers.Add("Authorization", RequestCallContext.AuthToken.Value);
     ~~~
 
 6. That's how your `ForwardToChildBot` method in `MasterRootDialog` should look like at the end.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\41.txt"`)
     ~~~csharp
     public async Task<HttpResponseMessage> ForwardToChildBot(string serviceName, string path, object model, IDictionary<string, string> headers = null)
         {
@@ -1260,6 +1296,7 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPa
 ![aiNugetPackage](https://asfabricstorage.blob.core.windows.net:443/images/31.png)
 
 2. In all three Startup.cs files across the solution, add the below code snippet as the first step
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\42.txt"`)
     ~~~csharp
     TelemetryConfiguration.Active.InstrumentationKey = "<GET_THE_KEY_FROM_AZURE_PORTAL>";
     TelemetryConfiguration.Active.TelemetryInitializers.Add(new OperationIdTelemetryInitializer());
@@ -1267,11 +1304,13 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPa
     ~~~
 
 3. In `MasterBotRootDialog`, look for `ForwardToChildBot` method and add the below line anywhere before sending the http request.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\43.txt"`)
     ~~~csharp
     targetRequest.Headers.Add("X-My-Operation-Id", OperationContext.Get().OperationId);
     ~~~
 
 4.  That's how your `ForwardToChildBot` method in `MasterRootDialog` should look like at the end.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\44.txt"`)
     ~~~csharp
     public async Task<HttpResponseMessage> ForwardToChildBot(string serviceName, string path, object model, IDictionary<string, string> headers = null)
         {
