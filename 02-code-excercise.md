@@ -8,6 +8,9 @@
 
 1. In Visual Studio Solution Explorer, locate the `OneBank.Common` project and create a new C# class by right-clicking on the project.
 2. Name this class as `OwinCommunicationListener` and replace it with following.
+
+@[open and copy the script file](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\1.txt"`)
+
     ~~~csharp
     namespace OneBank.Common
     {
