@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace OneBank.AccountsBot.Dialogs
 {
     [Serializable]
-    public class InsuranceEchoDialog
+    public class AccountsEchoDialog
     {
         private int count = 1;
 
@@ -23,7 +23,7 @@ namespace OneBank.AccountsBot.Dialogs
         {
             var message = await argument;
 
-            await context.PostAsync($"[From InsuranceBot] - You said {message.Text} - Count {count++}");
+            await context.PostAsync($"[From AccountsBot] - You said {message.Text} - Count {count++}");
             context.Wait(this.MessageReceivedAsync);
         }
     }

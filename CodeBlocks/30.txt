@@ -1,4 +1,11 @@
-config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPassword = "" });
-            var microsoftAppCredentials = Conversation.Container.Resolve<MicrosoftAppCredentials>();
-            microsoftAppCredentials.MicrosoftAppId = "";
-            microsoftAppCredentials.MicrosoftAppPassword = "";
+Conversation.UpdateContainer(
+                builder =>
+                {
+                    var store = new ServiceFabricBotDataStore("Accounts");
+                    builder.Register(c => new CachingBotDataStore(store, CachingBotDataStoreConsistencyPolicy.LastWriteWins))
+                        .As<IBotDataStore<BotData>>()
+                        .AsSelf()
+                        .InstancePerLifetimeScope();
+                });
+
+config.DependencyResolver = new AutofacWebApiDependencyResolver(Conversation.Container);

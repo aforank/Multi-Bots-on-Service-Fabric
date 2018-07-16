@@ -1,12 +1,14 @@
-[HttpPost]
+ [HttpPost]
     [Route("")]
     public async Task<HttpResponseMessage> Post([FromBody] Activity activity)
     {
+        // New Addition
+        RequestCallContext.AuthToken.Value = $"Bearer {this.Request.Headers.Authorization.Parameter}";
+        // New Addition
+
         if (activity != null && activity.GetActivityType() == ActivityTypes.Message)
         {
-            // New Addition
-            await Conversation.SendAsync(activity, () => new AccountsEchoDialog());
-            // New Addition
+            await Conversation.SendAsync(activity, () => new MasterRootDialog());
         }
         else
         {

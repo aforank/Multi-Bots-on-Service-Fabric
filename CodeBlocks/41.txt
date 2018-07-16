@@ -1,0 +1,34 @@
+public async Task<HttpResponseMessage> ForwardToChildBot(string serviceName, string path, object model, IDictionary<string, string> headers = null)
+    {
+        var clientFactory = Conversation.Container.Resolve<IHttpCommunicationClientFactory>();
+        var client = new ServicePartitionClient<HttpCommunicationClient>(clientFactory, new Uri(serviceName));
+
+        HttpResponseMessage response = null;
+
+        await client.InvokeWithRetry(async x =>
+        {
+            var targetRequest = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                Content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json"),
+                RequestUri = new Uri($"{x.HttpEndPoint}/{path}")
+            };
+
+            // New Addition
+            targetRequest.Headers.Add("Authorization", RequestCallContext.AuthToken.Value);
+            // New Addition
+
+            if (headers != null)
+            {
+                foreach (var key in headers.Keys)
+                {
+                    targetRequest.Headers.Add(key, headers[key]);
+                }
+            }
+
+            response = await x.HttpClient.SendAsync(targetRequest);
+        });
+
+        string s = await response.Content.ReadAsStringAsync();
+        return response;
+    }

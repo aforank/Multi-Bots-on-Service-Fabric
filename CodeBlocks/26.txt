@@ -1,29 +1,69 @@
-private async Task ResumeAfterChoiceSelection(IDialogContext context, IAwaitable<string> result)
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Actors.Client;
+using OneBank.BotStateActor.Interfaces;
+using Microsoft.ServiceFabric.Data;
+using OneBank.BotStateActor;
+
+namespace BotStateActor
 {
-    var choice = await result;
-
-    if (choice.Equals("Account Management", StringComparison.OrdinalIgnoreCase))
+    [StatePersistence(StatePersistence.Persisted)]
+    internal class BotStateActor : Actor, IBotStateActor
     {
-        var botDataStore = Conversation.Container.Resolve<IBotDataStore<BotData>>();
-        var key = Address.FromActivity(context.Activity);
-        var conversationData = await botDataStore.LoadAsync(key, BotStoreType.BotConversationData, CancellationToken.None);
-        conversationData.SetProperty<string>("CurrentBotContext", "Accounts");
-        await botDataStore.SaveAsync(key, BotStoreType.BotConversationData, conversationData, CancellationToken.None);
+        public BotStateActor(ActorService actorService, ActorId actorId)
+            : base(actorService, actorId)
+        {
+        }
 
-        await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.AccountsBot", "api/messages", context.Activity);
-    }
-    else if (choice.Equals("Buy Insurance", StringComparison.OrdinalIgnoreCase))
-    {
-        var botDataStore = Conversation.Container.Resolve<IBotDataStore<BotData>>();
-        var key = Address.FromActivity(context.Activity);
-        var conversationData = await botDataStore.LoadAsync(key, BotStoreType.BotConversationData, CancellationToken.None);
-        conversationData.SetProperty<string>("CurrentBotContext", "Insurance");
-        await botDataStore.SaveAsync(key, BotStoreType.BotConversationData, conversationData, CancellationToken.None);
+        public async Task<BotStateContext> GetBotStateAsync(string key, CancellationToken cancellationToken)
+        {
+            ActorEventSource.Current.ActorMessage(this, $"Getting bot state from actor key - {key}");
+            ConditionalValue<BotStateContext> result = await this.StateManager.TryGetStateAsync<BotStateContext>(key, cancellationToken);
 
-        await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.InsuranceBot", "api/messages", context.Activity);
-    }
-    else
-    {
-        context.Done(1);
+            if (result.HasValue)
+            {
+                return result.Value;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public async Task<BotStateContext> SaveBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken)
+        {
+            ActorEventSource.Current.ActorMessage(this, $"Adding bot state for actor key - {key}");
+            return await this.StateManager.AddOrUpdateStateAsync(
+                key,
+                dialogState,
+                (k, v) =>
+                    {
+                        return dialogState.ETag != "*" && dialogState.ETag != v.ETag ? throw new Exception() : v = dialogState;
+                    },
+                cancellationToken);
+        }
+
+        public async Task InsertBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken)
+        {
+            ActorEventSource.Current.ActorMessage(this, $"Inserting bot state for actor key - {key}");
+            await this.StateManager.AddStateAsync(key, dialogState, cancellationToken);
+        }
+
+        public async Task<bool> DeleteBotStateAsync(string key, CancellationToken cancellationToken)
+        {
+            ActorEventSource.Current.ActorMessage(this, $"Deleting bot state for actor key - {key}");
+            return await this.StateManager.TryRemoveStateAsync(key, cancellationToken);
+        }
+
+        protected override Task OnActivateAsync()
+        {
+            ActorEventSource.Current.ActorMessage(this, "Actor activated.");
+            return Task.FromResult(0);
+        }       
     }
 }

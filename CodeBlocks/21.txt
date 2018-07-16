@@ -1,22 +1,30 @@
+using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Connector;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace OneBank.BotStateActor
+namespace OneBank.AccountsBot.Dialogs
 {
     [Serializable]
-    public class BotStateContext
+    public class InsuranceEchoDialog
     {
-        public string BotId { get; set; }
+        private int count = 1;
 
-        public string UserId { get; set; }
+        public async Task StartAsync(IDialogContext context)
+        {
+            await Task.CompletedTask;
+            context.Wait(this.MessageReceivedAsync);
+        }
 
-        public string ChannelId { get; set; }
+        public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
+        {
+            var message = await argument;
 
-        public string ConversationId { get; set; }
-
-        public DateTime TimeStamp { get; set; }
-
-        public byte[] Data { get; set; }
-
-        public string ETag { get; set; }
+            await context.PostAsync($"[From InsuranceBot] - You said {message.Text} - Count {count++}");
+            context.Wait(this.MessageReceivedAsync);
+        }
     }
 }

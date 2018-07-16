@@ -1,1 +1,29 @@
-RequestCallContext.AuthToken.Value = $"Bearer {this.Request.Headers.Authorization.Parameter}";
+private async Task ResumeAfterChoiceSelection(IDialogContext context, IAwaitable<string> result)
+{
+    var choice = await result;
+
+    if (choice.Equals("Account Management", StringComparison.OrdinalIgnoreCase))
+    {
+        var botDataStore = Conversation.Container.Resolve<IBotDataStore<BotData>>();
+        var key = Address.FromActivity(context.Activity);
+        var conversationData = await botDataStore.LoadAsync(key, BotStoreType.BotConversationData, CancellationToken.None);
+        conversationData.SetProperty<string>("CurrentBotContext", "Accounts");
+        await botDataStore.SaveAsync(key, BotStoreType.BotConversationData, conversationData, CancellationToken.None);
+
+        await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.AccountsBot", "api/messages", context.Activity);
+    }
+    else if (choice.Equals("Buy Insurance", StringComparison.OrdinalIgnoreCase))
+    {
+        var botDataStore = Conversation.Container.Resolve<IBotDataStore<BotData>>();
+        var key = Address.FromActivity(context.Activity);
+        var conversationData = await botDataStore.LoadAsync(key, BotStoreType.BotConversationData, CancellationToken.None);
+        conversationData.SetProperty<string>("CurrentBotContext", "Insurance");
+        await botDataStore.SaveAsync(key, BotStoreType.BotConversationData, conversationData, CancellationToken.None);
+
+        await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.InsuranceBot", "api/messages", context.Activity);
+    }
+    else
+    {
+        context.Done(1);
+    }
+}

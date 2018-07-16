@@ -1,1 +1,4 @@
-targetRequest.Headers.Add("X-My-Operation-Id", OperationContext.Get().OperationId);
+config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPassword = "" });
+            var microsoftAppCredentials = Conversation.Container.Resolve<MicrosoftAppCredentials>();
+            microsoftAppCredentials.MicrosoftAppId = "";
+            microsoftAppCredentials.MicrosoftAppPassword = "";

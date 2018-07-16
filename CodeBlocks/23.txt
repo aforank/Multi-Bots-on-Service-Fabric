@@ -1,145 +1,17 @@
-namespace OneBank.Common
+[HttpPost]
+[Route("")]
+public async Task<HttpResponseMessage> Post([FromBody] Activity activity)
 {
-    using System;
-    using System.IO;
-    using System.IO.Compression;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.Bot.Builder.Dialogs;
-    using Microsoft.Bot.Builder.Dialogs.Internals;
-    using Microsoft.Bot.Connector;
-    using Microsoft.ServiceFabric.Actors;
-    using Microsoft.ServiceFabric.Actors.Client;
-    using Newtonsoft.Json;
-    using OneBank.BotStateActor;
-    using OneBank.BotStateActor.Interfaces;
-    
-    public class ServiceFabricBotDataStore : IBotDataStore<BotData>
+    if (activity != null && activity.GetActivityType() == ActivityTypes.Message)
     {
-        private static readonly JsonSerializerSettings SerializationSettings = new JsonSerializerSettings()
-        {
-            Formatting = Formatting.None,
-            NullValueHandling = NullValueHandling.Ignore
-        };
-
-        private readonly string botName;
-
-        public ServiceFabricBotDataStore(string botName)
-        {
-            this.botName = botName;
-        }
-
-        public async Task<bool> FlushAsync(IAddress key, CancellationToken cancellationToken)
-        {
-            return await Task.FromResult(true);
-        }
-
-        public async Task<BotData> LoadAsync(IAddress key, BotStoreType botStoreType, CancellationToken cancellationToken)
-        {
-            var botStateActor = this.GetActorInstance(key.UserId, key.ChannelId);
-            BotStateContext botStateContext = await botStateActor.GetBotStateAsync(this.GetStateKey(key, botStoreType), cancellationToken);
-
-            if (botStateContext != null)
-            {
-                return new BotData(botStateContext.ETag, Deserialize(botStateContext.Data));
-            }
-            else
-            {
-                return new BotData(string.Empty, null);
-            }
-        }
-
-        public async Task SaveAsync(IAddress key, BotStoreType botStoreType, BotData data, CancellationToken cancellationToken)
-        {
-            var stateKey = this.GetStateKey(key, botStoreType);
-
-            BotStateContext botStateContext = new BotStateContext
-            {
-                BotId = key.BotId,
-                ChannelId = key.ChannelId,
-                ConversationId = key.ConversationId,
-                UserId = key.UserId,
-                Data = Serialize(data.Data),
-                ETag = data.ETag,
-                TimeStamp = DateTime.UtcNow
-            };
-
-            var botStateActor = this.GetActorInstance(key.UserId, key.ChannelId);
-
-            if (string.IsNullOrEmpty(botStateContext.ETag))
-            {
-                botStateContext.ETag = Guid.NewGuid().ToString();
-                await botStateActor.SaveBotStateAsync(stateKey, botStateContext, cancellationToken);
-            }
-            else if (botStateContext.ETag == "*")
-            {
-                if (botStateContext.Data != null)
-                {
-                    await botStateActor.SaveBotStateAsync(stateKey, botStateContext, cancellationToken);
-                }
-                else
-                {
-                    await botStateActor.DeleteBotStateAsync(stateKey, cancellationToken);
-                }
-            }
-            else
-            {
-                if (botStateContext.Data != null)
-                {
-                    await botStateActor.SaveBotStateAsync(stateKey, botStateContext, cancellationToken);
-                }
-                else
-                {
-                    await botStateActor.DeleteBotStateAsync(stateKey, cancellationToken);
-                }
-            }
-        }
-
-        private static byte[] Serialize(object data)
-        {
-            using (var cmpStream = new MemoryStream())
-            using (var stream = new GZipStream(cmpStream, CompressionMode.Compress))
-            using (var streamWriter = new StreamWriter(stream))
-            {
-                var serializedJSon = JsonConvert.SerializeObject(data, SerializationSettings);
-                streamWriter.Write(serializedJSon);
-                streamWriter.Close();
-                stream.Close();
-                return cmpStream.ToArray();
-            }
-        }
-
-        private static object Deserialize(byte[] bytes)
-        {
-            using (var stream = new MemoryStream(bytes))
-            using (var gz = new GZipStream(stream, CompressionMode.Decompress))
-            using (var streamReader = new StreamReader(gz))
-            {
-                return JsonConvert.DeserializeObject(streamReader.ReadToEnd());
-            }
-        }
-
-        private IBotStateActor GetActorInstance(string userId, string channelId)
-        {
-            return ActorProxy.Create<IBotStateActor>(new ActorId($"{userId}-{channelId}"), new Uri("fabric:/OneBank.FabricApp/BotStateActorService"));
-        }
-
-        private string GetStateKey(IAddress key, BotStoreType botStoreType)
-        {
-            switch (botStoreType)
-            {
-                case BotStoreType.BotConversationData:
-                    return $"{this.botName}:{key.ChannelId}:conversation:{key.ConversationId}";
-
-                case BotStoreType.BotUserData:
-                    return $"{this.botName}:{key.ChannelId}:user:{key.ConversationId}";
-
-                case BotStoreType.BotPrivateConversationData:
-                    return $"{this.botName}:{key.ChannelId}:private:{key.ConversationId}:{key.UserId}";
-
-                default:
-                    throw new ArgumentException("Unsupported bot store type!");
-            }
-        }
+        // New Addition
+        await Conversation.SendAsync(activity, () => new InsuranceEchoDialog());
+        // New Addition
     }
+    else
+    {
+        this.HandleSystemMessage(activity);
+    }
+
+    return new HttpResponseMessage(HttpStatusCode.Accepted);
 }

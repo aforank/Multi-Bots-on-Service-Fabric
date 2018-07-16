@@ -1,10 +1,11 @@
-namespace OneBank.Common
-{
-    using System.Collections.Concurrent;
-    using System.Threading;
+Conversation.UpdateContainer(
+                builder =>
+                {
+                    var store = new ServiceFabricBotDataStore("Insurance");
+                    builder.Register(c => new CachingBotDataStore(store, CachingBotDataStoreConsistencyPolicy.LastWriteWins))
+                        .As<IBotDataStore<BotData>>()
+                        .AsSelf()
+                        .InstancePerLifetimeScope();
+                });
 
-    public class RequestCallContext
-    {
-        public static AsyncLocal<string> AuthToken { get; set; } = new AsyncLocal<string>();
-    }
-}
+config.DependencyResolver = new AutofacWebApiDependencyResolver(Conversation.Container);

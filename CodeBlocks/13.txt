@@ -1,29 +1,42 @@
-public async Task<HttpResponseMessage> ForwardToChildBot(string serviceName, string path, object model, IDictionary<string, string> headers = null)
+public static class Startup
 {
-    var clientFactory = Conversation.Container.Resolve<IHttpCommunicationClientFactory>();
-    var client = new ServicePartitionClient<HttpCommunicationClient>(clientFactory, new Uri(serviceName));
-
-    HttpResponseMessage response = null;
-
-    await client.InvokeWithRetry(async x =>
+    /// <summary>
+    /// The ConfigureApp
+    /// </summary>
+    /// <param name="appBuilder">The <see cref="IAppBuilder" /></param>
+    public static void ConfigureApp(IAppBuilder appBuilder)
     {
-        var targetRequest = new HttpRequestMessage
+        HttpConfiguration config = new HttpConfiguration();
+
+        config.Formatters.JsonFormatter.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+        config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+        config.Formatters.JsonFormatter.SerializerSettings.Formatting = Formatting.Indented;
+        JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
         {
-            Method = HttpMethod.Post,
-            Content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json"),
-            RequestUri = new Uri($"{x.HttpEndPoint}/{path}")
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            Formatting = Newtonsoft.Json.Formatting.Indented,
+            NullValueHandling = NullValueHandling.Ignore,
         };
 
-        if (headers != null)
-        {
-            foreach (var key in headers.Keys)
+        config.MapHttpAttributeRoutes();
+
+        config.Routes.MapHttpRoute(
+            name: "DefaultApi",
+            routeTemplate: "api/{controller}/{id}",
+            defaults: new { id = RouteParameter.Optional });
+        
+        config.Filters.Add(new HandleExceptionAttribute());
+        appBuilder.UseWebApi(config);
+
+        // New Addition
+        Conversation.UpdateContainer(
+            builder =>
             {
-                targetRequest.Headers.Add(key, headers[key]);
-            }
-        }
+                builder.Register(c => new HttpCommunicationClientFactory(new HttpClient()))
+                 .As<IHttpCommunicationClientFactory>().SingleInstance();
+            });
 
-        response = await x.HttpClient.SendAsync(targetRequest);
-    });
-
-    return response;
+        config.DependencyResolver = new AutofacWebApiDependencyResolver(Conversation.Container);
+        // New Addition
+    }
 }

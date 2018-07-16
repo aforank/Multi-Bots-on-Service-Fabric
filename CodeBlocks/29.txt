@@ -1,4 +1,43 @@
-config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPassword = "" });
-            var microsoftAppCredentials = Conversation.Container.Resolve<MicrosoftAppCredentials>();
-            microsoftAppCredentials.MicrosoftAppId = "";
-            microsoftAppCredentials.MicrosoftAppPassword = "";
+public static class Startup
+{
+    public static void ConfigureApp(IAppBuilder appBuilder)
+    {
+        HttpConfiguration config = new HttpConfiguration();
+
+        config.Formatters.JsonFormatter.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+        config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+        config.Formatters.JsonFormatter.SerializerSettings.Formatting = Formatting.Indented;
+        JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
+        {
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            Formatting = Newtonsoft.Json.Formatting.Indented,
+            NullValueHandling = NullValueHandling.Ignore,
+        };
+
+        config.MapHttpAttributeRoutes();
+
+        config.Routes.MapHttpRoute(
+            name: "DefaultApi",
+            routeTemplate: "api/{controller}/{id}",
+            defaults: new { id = RouteParameter.Optional });
+
+        config.Filters.Add(new HandleExceptionAttribute());
+        appBuilder.UseWebApi(config);
+
+        Conversation.UpdateContainer(
+            builder =>
+            {
+                // New Addition
+                var store = new ServiceFabricBotDataStore("Master");
+                builder.Register(c => new CachingBotDataStore(store, CachingBotDataStoreConsistencyPolicy.LastWriteWins))
+                    .As<IBotDataStore<BotData>>()
+                    .AsSelf()
+                    .InstancePerLifetimeScope();
+                // New Addition
+                builder.Register(c => new HttpCommunicationClientFactory(new HttpClient()))
+                 .As<IHttpCommunicationClientFactory>().SingleInstance();
+            });
+
+        config.DependencyResolver = new AutofacWebApiDependencyResolver(Conversation.Container);
+    }
+}

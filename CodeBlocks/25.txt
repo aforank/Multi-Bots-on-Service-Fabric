@@ -1,11 +1,22 @@
-Conversation.UpdateContainer(
-                builder =>
-                {
-                    var store = new ServiceFabricBotDataStore("Insurance");
-                    builder.Register(c => new CachingBotDataStore(store, CachingBotDataStoreConsistencyPolicy.LastWriteWins))
-                        .As<IBotDataStore<BotData>>()
-                        .AsSelf()
-                        .InstancePerLifetimeScope();
-                });
+using System;
 
-config.DependencyResolver = new AutofacWebApiDependencyResolver(Conversation.Container);
+namespace OneBank.BotStateActor
+{
+    [Serializable]
+    public class BotStateContext
+    {
+        public string BotId { get; set; }
+
+        public string UserId { get; set; }
+
+        public string ChannelId { get; set; }
+
+        public string ConversationId { get; set; }
+
+        public DateTime TimeStamp { get; set; }
+
+        public byte[] Data { get; set; }
+
+        public string ETag { get; set; }
+    }
+}
