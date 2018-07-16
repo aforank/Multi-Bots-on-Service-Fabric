@@ -107,7 +107,7 @@
     ~~~
 
 3. In Visual Studio Solution Explorer, locate the `OneBank.MasterBot` project and double click on `MasterBot.cs` file.
-4. Find the method `CreateServiceInstanceListeners`, and replace the definition with following code.
+4. Find the method `CreateServiceInstanceListeners`, replace the definition with following code, and resolve namespaces
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\2.txt"`)
     ~~~csharp
@@ -122,21 +122,17 @@
     }
     ~~~
 
-5. In `OneBank.MasterBot` project, locate the `ServiceManifest.xml` file and add an HTTP endpoint inside the `<Endpoints>` element.
+5. In `OneBank.MasterBot` project, locate the `ServiceManifest.xml` file under `PackageRoot` folder and add an HTTP endpoint inside the `<Endpoints>` element.
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\3.txt"`)
     ~~~xml
-    <Resources>
-        <Endpoints>
-        <Endpoint Name="ServiceEndpoint" Type="Input" Protocol="http" Port="8770" />
-        </Endpoints>
-    </Resources>
+    <Endpoint Name="ServiceEndpoint" Type="Input" Protocol="http" Port="8770" />
     ~~~
 
     > Notice the `Type` and `Port` of the Master bot endpoint. These values should be different for all child bots as shown in the next step.
 
 6. Similarly, locate the `OneBank.AccountsBot`project and double click on AccountsBot.cs file.
-7. Find the method `CreateServiceInstanceListeners`, and replace the definition with following code.
+7. Find the method `CreateServiceInstanceListeners`, replace the definition with following code, and resolve namespaces
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\4.txt"`)
     ~~~csharp
@@ -151,15 +147,11 @@
     }
     ~~~
 
-8. In `OneBank.AccountsBot` project, locate the `ServiceManifest.xml` file and add an HTTP endpoint inside the `<Endpoints>` element.
+8. In `OneBank.AccountsBot` project, locate the `ServiceManifest.xml` file under `PackageRoot` folder and add an HTTP endpoint inside the `<Endpoints>` element.
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\5.txt"`)
     ~~~xml
-    <Resources>
-        <Endpoints>
-        <Endpoint Name="ServiceEndpoint" Type="Internal" Protocol="http" Port="8771" />
-        </Endpoints>
-    </Resources>
+    <Endpoint Name="ServiceEndpoint" Type="Internal" Protocol="http" Port="8771" />
     ~~~
 
 9. Again, you would do the same for the InsuranceBot by replacing the definition for `CreateServiceInstanceListeners` with following code
@@ -177,15 +169,11 @@
     }
     ~~~
   
-10. And then, add an endpoint in the ServiceManifest.xml file under `<Endpoints>` element.
+10. And then, add an endpoint in the ServiceManifest.xml file inside `<Endpoints>` element
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\7.txt"`)
     ~~~xml
-    <Resources>
-        <Endpoints>
-        <Endpoint Name="ServiceEndpoint" Type="Internal" Protocol="http" Port="8772" />
-        </Endpoints>
-    </Resources>
+    <Endpoint Name="ServiceEndpoint" Type="Internal" Protocol="http" Port="8772" />
     ~~~
     > Http port for the AccountsBot & InsuranceBot must be different than MasterBot. Also, the `Type` should also be `Internal` so that you don't expose the child bots directly outside of the Service Fabric cluster. Only MasterBot should be exposed to a publicly accessible endpoint.
 
@@ -242,6 +230,34 @@
             }
         }
     }
+    ~~~
+3. Locate the `MasterBotController` under `Controllers` folder, add the following line inside if condition of the Post method, and resolve namespaces
+
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\45.txt"`)
+    ~~~csharp
+    await Conversation.SendAsync(activity, () => new MasterRootDialog());
+    ~~~
+4. That's how your Post method should look
+
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\46.txt"`)
+    ~~~csharp
+    [HttpPost]
+        [Route("")]
+        public async Task<HttpResponseMessage> Post([FromBody] Activity activity)
+        {
+            if (activity != null && activity.GetActivityType() == ActivityTypes.Message)
+            {
+                // New Addition
+                await Conversation.SendAsync(activity, () => new MasterRootDialog());
+                // New Addition
+            }
+            else
+            {
+                this.HandleSystemMessage(activity);
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.Accepted);
+        }
     ~~~
 
 **Task III: Observe the application by running it.**
@@ -337,7 +353,7 @@
     }
     ~~~
 
-3. Add another class in `OneBank.Common` project and name it as HttpCommunicationClientFactory
+3. Add another class in `OneBank.Common` project and name it as `HttpCommunicationClientFactory`
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\11.txt"`)
     ~~~csharp
@@ -385,7 +401,7 @@
 
     ~~~
 
-4. In `OneBank.MasterBot` project, locate the Startup.cs class and register the `HttpCommunicationClientFactory` created in the previous step
+4. In `OneBank.MasterBot` project, locate the Startup.cs class and register the `HttpCommunicationClientFactory` created in the previous step. Resolve namepaces if any.
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\12.txt"`)
     ~~~csharp
@@ -448,7 +464,7 @@
 
 **Task II: Modify `MasterRootDialog` class created in `Excercise 1`**
 
-1. In `OneBank.MasterBot` project, find the `MasterRootDialog` class and append new method called `ForwardToChildBot` as shown below.
+1. In `OneBank.MasterBot` project, find the `MasterRootDialog` class, append new method called `ForwardToChildBot` as shown below, and resolve namespaces
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\14.txt"`)
     ~~~csharp
@@ -483,7 +499,7 @@
     }
     ~~~
 
-2. Locate the `MessageReceivedAsync` method in the `MasterRootDialog` class and replace the following line 
+2. Locate the `ResumeAfterChoiceSelection` method in the `MasterRootDialog` class and replace the following line 
     ~~~csharp
     await context.PostAsync("Forward me to AccountsBot"); 
     ~~~
@@ -522,21 +538,10 @@
 
         public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
         {
-            if (currentBotCtx == "Accounts")
-            {
-                await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.AccountsBot", "api/messages", context.Activity);
-            }
-            else if (currentBotCtx == "Insurance")
-            {
-                await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.InsuranceBot", "api/messages", context.Activity);
-            }
-            else
-            {
-                await context.PostAsync("Hello there! Welcome to OneBank.");
-                await context.PostAsync("I am the Master bot");
+            await context.PostAsync("Hello there! Welcome to OneBank.");
+            await context.PostAsync("I am the Master bot");
 
-                PromptDialog.Choice(context, ResumeAfterChoiceSelection, new List<string>() { "Account Management", "Buy Insurance" }, "What would you like to do today?");
-            }                      
+                PromptDialog.Choice(context, ResumeAfterChoiceSelection, new List<string>() { "Account Management", "Buy Insurance" },  "What would you like to do today?");
         }
 
         private async Task ResumeAfterChoiceSelection(IDialogContext context, IAwaitable<string> result)
@@ -573,8 +578,6 @@
                     RequestUri = new Uri($"{x.HttpEndPoint}/{path}")
                 };
 
-                targetRequest.Headers.Add("X-My-Operation-Id", OperationContext.Get().OperationId);
-
                 if (headers != null)
                 {
                     foreach (var key in headers.Keys)
@@ -609,7 +612,7 @@
     namespace OneBank.AccountsBot.Dialogs
     {
         [Serializable]
-        public class AccountsEchoDialog
+        public class AccountsEchoDialog : IDialog<object>
         {
             private int count = 1;
 
@@ -678,7 +681,7 @@
     namespace OneBank.AccountsBot.Dialogs
     {
         [Serializable]
-        public class InsuranceEchoDialog
+        public class InsuranceEchoDialog : IDialog<object>
         {
             private int count = 1;
 
@@ -741,20 +744,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 
 **Task I: Create Stateful Reliable Actors** 
 
-1. In `OneBank.BotStateActor.Interface`, locate the `IBotStateActor` interface and add the following four methods
-
-    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\24.txt"`)
-    ~~~csharp
-    Task<BotStateContext> GetBotStateAsync(string key, CancellationToken cancellationToken);
-
-    Task<BotStateContext> SaveBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken);
-
-    Task InsertBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken);
-
-    Task<bool> DeleteBotStateAsync(string key, CancellationToken cancellationToken);
-    ~~~
-
-2. In `OneBank.BotStateActor.Interface`, create a new model class by the name of BotStateContext to store the BotData.
+1. In `OneBank.BotStateActor.Interface`, create a new model class by the name of `BotStateContext` to store the BotData.
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\25.txt"`)
     ~~~csharp
@@ -781,8 +771,21 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
         }
     }
     ~~~
+    
+2. In `OneBank.BotStateActor.Interface`, locate the `IBotStateActor` interface and add the following four methods
 
-3. In `OneBank.BotStateActor` project, find the BotStateActor.cs class and replace the existing code with following code.
+    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\24.txt"`)
+    ~~~csharp
+    Task<BotStateContext> GetBotStateAsync(string key, CancellationToken cancellationToken);
+
+    Task<BotStateContext> SaveBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken);
+
+    Task InsertBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken);
+
+    Task<bool> DeleteBotStateAsync(string key, CancellationToken cancellationToken);
+    ~~~
+
+3. In `OneBank.BotStateActor` project, find the `BotStateActor.cs` class and replace the existing code with following code.
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\26.txt"`)
     ~~~csharp
@@ -857,7 +860,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     }
     ~~~
 
-4. In `OneBank.Common` project create a new class by the name of ServiceFabricBotDataStore and replace the exisitng code with following
+4. In `OneBank.Common` project create a new class by the name of `ServiceFabricBotDataStore` and replace the exisitng code with following
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\27.txt"`)
     ~~~csharp
@@ -1008,7 +1011,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     }
     ~~~
 
-5. In `OneBank.MasterBot`, find the Startup.cs file, under Conversation.UpdateContainer section, add the following code
+5. In `OneBank.MasterBot`, find the Startup.cs file, under Conversation.UpdateContainer section, add the following code and resolve namespaces
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\28.txt"`)
     ~~~csharp
@@ -1068,7 +1071,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     }
     ~~~
 
-7. In `OneBank.AccountsBot`, find the Startup.cs file, under Conversation.UpdateContainer section, add the following code
+7. In `OneBank.AccountsBot`, find the Startup.cs file, under Conversation.UpdateContainer section, add the following code and resolve namespaces
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\30.txt"`)
     ~~~csharp
@@ -1086,7 +1089,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     ~~~
     > The value in the constructor of `ServiceFabricBotDataStore` must be different for all bots. 
 
-8. In `OneBank.InsuranceBot`, locate the Startup.cs file, under Conversation.UpdateContainer section, add the following code
+8. In `OneBank.InsuranceBot`, locate the Startup.cs file, under Conversation.UpdateContainer section, add the following code and resolve namespaces
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\31.txt"`)
     ~~~csharp
@@ -1106,7 +1109,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 
 **Task II: Modify the `MasterRootDialog` class in `OneBank.MasterBot` to persist the selection made by the user in the first prompt. We should do this to maintain the sticky session between the end-user and the child bot so that all subsequent requests directly goes to child bot without performing any redirection logic again on the MasterBot.**
 
-1. In `MasterRootDialog`, locate `ResumeAfterChoiceSelection` method and replace the exisitng definitation with the following code 
+1. In `MasterRootDialog`, locate `ResumeAfterChoiceSelection` method, replace the exisitng definitation with the following code, and resolve namespaces
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\32.txt"`)
     ~~~csharp
@@ -1141,7 +1144,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     }
     ~~~
 
-2. In `MasterRootDialog`, locate `ResumeAfterChoiceSelection` method and replace the exisitng definitation with the following code 
+2. In `MasterRootDialog`, locate `MessageReceivedAsync` method, replace the exisitng definitation with the following code, and resolve namespaces
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\33.txt"`)
     ~~~csharp
