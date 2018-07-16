@@ -1,0 +1,3 @@
+TelemetryConfiguration.Active.InstrumentationKey = "<GET_THE_KEY_FROM_AZURE_PORTAL>";
+TelemetryConfiguration.Active.TelemetryInitializers.Add(new OperationIdTelemetryInitializer());
+appBuilder.UseApplicationInsights(null, new OperationIdContextMiddlewareConfiguration { OperationIdFactory = IdFactory.FromHeader("X-My-Operation-Id") });

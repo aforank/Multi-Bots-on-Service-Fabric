@@ -1,0 +1,7 @@
+Task<BotStateContext> GetBotStateAsync(string key, CancellationToken cancellationToken);
+
+Task<BotStateContext> SaveBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken);
+
+Task InsertBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken);
+
+Task<bool> DeleteBotStateAsync(string key, CancellationToken cancellationToken);

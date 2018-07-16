@@ -1,0 +1,20 @@
+public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
+{
+    var currentBotCtx = context.ConversationData.GetValueOrDefault<string>("CurrentBotContext");
+
+    if (currentBotCtx == "Accounts")
+    {
+        await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.AccountsBot", "api/messages", context.Activity);
+    }
+    else if (currentBotCtx == "Insurance")
+    {
+        await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.InsuranceBot", "api/messages", context.Activity);
+    }
+    else
+    {
+        await context.PostAsync("Hello there! Welcome to OneBank.");
+        await context.PostAsync("I am the Master bot");
+
+        PromptDialog.Choice(context, ResumeAfterChoiceSelection, new List<string>() { "Account Management", "Buy Insurance" }, "What would you like to do today?");
+    }                      
+}

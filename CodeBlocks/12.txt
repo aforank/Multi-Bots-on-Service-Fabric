@@ -1,0 +1,8 @@
+Conversation.UpdateContainer(
+                builder =>
+                {
+                    builder.Register(c => new HttpCommunicationClientFactory(new HttpClient()))
+                    .As<IHttpCommunicationClientFactory>().SingleInstance();
+                });
+
+config.DependencyResolver = new AutofacWebApiDependencyResolver(Conversation.Container);

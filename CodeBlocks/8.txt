@@ -1,0 +1,46 @@
+using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Connector;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace OneBank.MasterBot.Dialogs
+{
+    [Serializable]
+    public class MasterRootDialog : IDialog<object>
+    {
+        public Task StartAsync(IDialogContext context)
+        {
+            context.Wait(this.MessageReceivedAsync);
+            return Task.CompletedTask;
+        }
+
+        public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
+        {
+            await context.PostAsync("Hello there! Welcome to OneBank.");
+            await context.PostAsync("I am the Master bot");
+
+            PromptDialog.Choice(context, ResumeAfterChoiceSelection, new List<string>() { "Account Management", "Buy Insurance" }, "What would you like to do today?");           
+        }
+
+        private async Task ResumeAfterChoiceSelection(IDialogContext context, IAwaitable<string> result)
+        {
+            var choice = await result;
+
+            if (choice.Equals("Account Management", StringComparison.OrdinalIgnoreCase))
+            {
+                await context.PostAsync("Forward me to AccountsBot");
+            }
+            else if (choice.Equals("Buy Insurance", StringComparison.OrdinalIgnoreCase))
+            {
+                await context.PostAsync("Forward me to InsuranceBot");
+            }
+            else
+            {
+                context.Done(1);
+            }
+        }
+    }
+}

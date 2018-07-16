@@ -1,0 +1,5 @@
+<Resources>
+    <Endpoints>
+    <Endpoint Name="ServiceEndpoint" Type="Input" Protocol="http" Port="8770" />
+    </Endpoints>
+</Resources>

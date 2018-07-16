@@ -1,0 +1,4 @@
+config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPassword = "" });
+            var microsoftAppCredentials = Conversation.Container.Resolve<MicrosoftAppCredentials>();
+            microsoftAppCredentials.MicrosoftAppId = "";
+            microsoftAppCredentials.MicrosoftAppPassword = "";
