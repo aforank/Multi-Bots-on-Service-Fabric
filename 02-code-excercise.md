@@ -702,8 +702,6 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\26.txt"`)
     ~~~csharp
-    namespace BotStateActor
-{
     using System;
     using System.Threading;
     using System.Threading.Tasks;
@@ -712,47 +710,48 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     using Microsoft.ServiceFabric.Data;
     using OneBank.BotStateActor.Interfaces;
 
-    [StatePersistence(StatePersistence.Persisted)]
-    internal class BotStateActor : Actor, IBotStateActor
+    namespace BotStateActor
     {
-        public BotStateActor(ActorService actorService, ActorId actorId)
-            : base(actorService, actorId)
+        [StatePersistence(StatePersistence.Persisted)]
+        internal class BotStateActor : Actor, IBotStateActor
         {
-        }
-
-        public async Task<BotStateContext> GetBotStateAsync(string key, CancellationToken cancellationToken)
-        {
-            ActorEventSource.Current.ActorMessage(this, $"Getting bot state from actor key - {key}");
-            ConditionalValue<BotStateContext> result = await this.StateManager.TryGetStateAsync<BotStateContext>(key, cancellationToken);
-
-            if (result.HasValue)    
+            public BotStateActor(ActorService actorService, ActorId actorId)
+                : base(actorService, actorId)
             {
-                return result.Value;
             }
-            else
-            {
-                return null;
-            }
-        }
 
-        public async Task<BotStateContext> SaveBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken)
-        {
-            ActorEventSource.Current.ActorMessage(this, $"Adding bot state for actor key - {key}");
-            return await this.StateManager.AddOrUpdateStateAsync(
-                key,
-                dialogState,
-                (k, v) =>
+            public async Task<BotStateContext> GetBotStateAsync(string key, CancellationToken cancellationToken)
+            {
+                ActorEventSource.Current.ActorMessage(this, $"Getting bot state from actor key - {key}");
+                ConditionalValue<BotStateContext> result = await this.StateManager.TryGetStateAsync<BotStateContext>(key, cancellationToken);
+
+                if (result.HasValue)    
                 {
-                    return (dialogState.UserData.ETag != "*" && dialogState.UserData.ETag != v.UserData.ETag) ||
-                        (dialogState.ConversationData.ETag != "*" && dialogState.ConversationData.ETag != v.UserData.ETag) ||
-                        (dialogState.PrivateConversationData.ETag != "*" && dialogState.PrivateConversationData.ETag != v.UserData.ETag)
-                            ? throw new Exception() : v = dialogState;
-                },
-                cancellationToken);
-        }
+                    return result.Value;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            public async Task<BotStateContext> SaveBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken)
+            {
+                ActorEventSource.Current.ActorMessage(this, $"Adding bot state for actor key - {key}");
+                return await this.StateManager.AddOrUpdateStateAsync(
+                    key,
+                    dialogState,
+                    (k, v) =>
+                    {
+                        return (dialogState.UserData.ETag != "*" && dialogState.UserData.ETag != v.UserData.ETag) ||
+                            (dialogState.ConversationData.ETag != "*" && dialogState.ConversationData.ETag != v.UserData.ETag) ||
+                            (dialogState.PrivateConversationData.ETag != "*" && dialogState.PrivateConversationData.ETag != v.UserData.ETag)
+                                ? throw new Exception() : v = dialogState;
+                    },
+                    cancellationToken);
+            }
         }
     }
-}
     ~~~
 
 4. In `OneBank.Common` project create a new class by the name of `ServiceFabricBotDataStore` and replace the exisitng code with following
