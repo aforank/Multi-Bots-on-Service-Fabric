@@ -219,7 +219,7 @@
             }
         }
     }
-    ~~~
+    ```
 3. In `OneBank.MasterBot` project, locate the `MasterBotController` under `Controllers` folder, add the following line inside `if condition` of the Post method, and resolve namespaces
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\45.txt"`)
