@@ -173,12 +173,12 @@
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\8.txt"`)
     ```nocopy
      using Microsoft.Bot.Builder.Dialogs;
-     using Microsoft.Bot.Connector;
-     using System;
-     using System.Collections.Generic;
-     using System.Linq;
-     using System.Text;
-     using System.Threading.Tasks;
+    using Microsoft.Bot.Connector;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
 
      namespace OneBank.MasterBot.Dialogs
      {
@@ -758,17 +758,17 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\27.txt"`)
      ```nocopy
      using System;
-     using System.IO;
-     using System.IO.Compression;
-     using System.Threading;
-     using System.Threading.Tasks;
-     using Microsoft.Bot.Builder.Dialogs;
-     using Microsoft.Bot.Builder.Dialogs.Internals;
-     using Microsoft.Bot.Connector;
-     using Microsoft.ServiceFabric.Actors;
-     using Microsoft.ServiceFabric.Actors.Client;
-     using Newtonsoft.Json;
-     using OneBank.BotStateActor.Interfaces;
+    using System.IO;
+    using System.IO.Compression;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.Bot.Builder.Dialogs;
+    using Microsoft.Bot.Builder.Dialogs.Internals;
+    using Microsoft.Bot.Connector;
+    using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Client;
+    using Newtonsoft.Json;
+    using OneBank.BotStateActor.Interfaces;
 
      namespace OneBank.Common
      {
@@ -967,7 +967,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\29.txt"`)
     ```nocopy
      public static class Startup
-     {
+    {
         public static void ConfigureApp(IAppBuilder appBuilder)
         {
             HttpConfiguration config = new HttpConfiguration();
@@ -1030,7 +1030,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\32.txt"`)
     ```nocopy
      private async Task ResumeAfterChoiceSelection(IDialogContext context, IAwaitable<string> result)
-     {
+    {
         var choice = await result;
 
         if (choice.Equals("Account Management", StringComparison.OrdinalIgnoreCase))
@@ -1051,14 +1051,14 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
         {
             context.Done(1);
         }
-     }
+    }
     ```
 
 2. In `MasterRootDialog`, locate `MessageReceivedAsync` method, replace the exisitng definitation with the following code, and resolve namespaces
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\33.txt"`)
     ```nocopy
-    public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
+     public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
     {
         var botDataStore = Conversation.Container.Resolve<IBotDataStore<BotData>>();
 		var key = Address.FromActivity(context.Activity);
@@ -1179,7 +1179,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\40.txt"`)
     ```nocopy
-    targetRequest.Headers.Add("Authorization", RequestCallContext.AuthToken.Value);
+     targetRequest.Headers.Add("Authorization", RequestCallContext.AuthToken.Value);
     ```
 
 6. That's how your `ForwardToChildBot` method in `MasterRootDialog` should look like at the end.
@@ -1227,6 +1227,8 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 1. First, run the application without specifying the MicrosoftAppId and MicrosoftAppPassword. You would see a 401 response at the bottom right of the emulator as shown in the screenshot below.
 ![botAuthenticationError](https://asfabricstorage.blob.core.windows.net:443/images/27.png)
 
-2. Now, Specify the MicrosoftAppId and MicrosoftPassword and click connect as shown in the screenshot below. This time it should be working absolutely fine.
+2. Now, Specify the MicrosoftAppId and MicrosoftPassword as shown below and click connect as shown in the screenshot below. This time it should be working absolutely fine.
+	MicrosoftAppId - **a8fe8368-9518-4fec-9717-fdbc156febcc**
+	MicrosoftPassword - **mtwyCDP267{[$wcfLEKC92(**
 ![botAuthenticationPassed](https://asfabricstorage.blob.core.windows.net:443/images/28.png)
 
