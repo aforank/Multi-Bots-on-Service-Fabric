@@ -393,7 +393,7 @@
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\12.txt"`)
     ```nocopy
-    Conversation.UpdateContainer(
+     Conversation.UpdateContainer(
                     builder =>
                     {
                         builder.Register(c => new HttpCommunicationClientFactory(new HttpClient()))
@@ -409,10 +409,6 @@
     ```nocopy
      public static class Startup
      {
-        /// <summary>
-        /// The ConfigureApp
-        /// </summary>
-        /// <param name="appBuilder">The <see cref="IAppBuilder" /></param>
         public static void ConfigureApp(IAppBuilder appBuilder)
         {
             HttpConfiguration config = new HttpConfiguration();
@@ -758,17 +754,17 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\27.txt"`)
      ```nocopy
      using System;
-    using System.IO;
-    using System.IO.Compression;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.Bot.Builder.Dialogs;
-    using Microsoft.Bot.Builder.Dialogs.Internals;
-    using Microsoft.Bot.Connector;
-    using Microsoft.ServiceFabric.Actors;
-    using Microsoft.ServiceFabric.Actors.Client;
-    using Newtonsoft.Json;
-    using OneBank.BotStateActor.Interfaces;
+     using System.IO;
+     using System.IO.Compression;
+     using System.Threading;
+     using System.Threading.Tasks;
+     using Microsoft.Bot.Builder.Dialogs;
+     using Microsoft.Bot.Builder.Dialogs.Internals;
+     using Microsoft.Bot.Connector;
+     using Microsoft.ServiceFabric.Actors;
+     using Microsoft.ServiceFabric.Actors.Client;
+     using Newtonsoft.Json;
+     using OneBank.BotStateActor.Interfaces;
 
      namespace OneBank.Common
      {
@@ -958,7 +954,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\28.txt"`)
     ```nocopy
-    builder.Register(c => new ServiceFabricBotDataStore("Master"))
+     builder.Register(c => new ServiceFabricBotDataStore("Master"))
                     .As<IBotDataStore<BotData>>().InstancePerLifetimeScope();
     ``` 
 
@@ -1102,7 +1098,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 
 **Task I: Modify StartUp.cs class of MasterBot and replace the MicrosoftAppId and MicrosoftAppPassword with the actual value.**
 
-1. In `OneBank.MasterBot` project, look for the StartUp.cs file and place the below code after the `Conversation.UpdateContainer` block. Please note that we are using the pre-created AppId and AppPassword in this lab but you are free to replace the values with your own AppId and AppPassword which you can get from Azure Portal as shown in Lab 2. 
+1. In `OneBank.MasterBot` project, look for the StartUp.cs file and **place the below code after the** `Conversation.UpdateContainer` **block**. Please note that we are using the pre-created AppId and AppPassword in this lab but you are free to replace the values with your own AppId and AppPassword which you can get it from Azure Portal as shown in Additional Exercise Lab. 
 
 @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\34.txt"`)
 ```nocopy
@@ -1228,7 +1224,9 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 ![botAuthenticationError](https://asfabricstorage.blob.core.windows.net:443/images/27.png)
 
 2. Now, Specify the MicrosoftAppId and MicrosoftPassword as shown below and click connect as shown in the screenshot below. This time it should be working absolutely fine.
+
 	MicrosoftAppId - **a8fe8368-9518-4fec-9717-fdbc156febcc**
 	MicrosoftPassword - **mtwyCDP267{[$wcfLEKC92(**
+	
 ![botAuthenticationPassed](https://asfabricstorage.blob.core.windows.net:443/images/28.png)
 
