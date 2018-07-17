@@ -163,28 +163,7 @@
     ~~~xml
     <Endpoint Name="HttpServiceEndpoint" Type="Internal" Protocol="http" Port="8771" />
     ~~~
-
-9. Again, you would do the same for the InsuranceBot by replacing the definition for `CreateServiceInstanceListeners` with following code
-
-    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\6.txt"`)
-    ~~~csharp
-    protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
-    {
-        var endpoints = this.Context.CodePackageActivationContext.GetEndpoints()
-                                .Where(endpoint => endpoint.Protocol == EndpointProtocol.Http || endpoint.Protocol == EndpointProtocol.Https)
-                                .Select(endpoint => endpoint.Name);
-
-        return endpoints.Select(endpoint => new ServiceInstanceListener(
-            context => new OwinCommunicationListener(Startup.ConfigureApp, this.Context, endpoint), endpoint));
-    }
-    ~~~
   
-10. And then, add an endpoint in the ServiceManifest.xml file inside `<Endpoints>` element
-
-    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\7.txt"`)
-    ~~~xml
-    <Endpoint Name="ServiceEndpoint" Type="Internal" Protocol="http" Port="8772" />
-    ~~~
     > Http port for the AccountsBot & InsuranceBot must be different than MasterBot. Also, the `Type` should also be `Internal` so that you don't expose the child bots directly outside of the Service Fabric cluster. Only MasterBot should be exposed to a publicly accessible endpoint.
 
 **Task II : Create a basic master root dialog.**
@@ -521,18 +500,6 @@
     await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.AccountsBot", "api/messages", context.Activity);
     ~~~
 
-3. Similary, replace the following line
-    ~~~csharp
-    await context.PostAsync("Forward me to InsuranceBot"); 
-    ~~~
-
-    with
-    
-    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\16.txt"`)
-    ~~~csharp
-    await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.InsuranceBot", "api/messages", context.Activity);
-    ~~~
-
 4. That's how your `MasterRootDialog` should look like now
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\17.txt"`)
@@ -673,78 +640,9 @@
         }
     ~~~
 
-**Task IV: Create and register `InsuranceEchoDialog` in InsuranceBot**
-
-1. In `OneBank.InsuranceBot` project, locate the `Dialogs` folder and add a new C# class.
-2. Name this class as `InsuranceEchoDialog` and replace the existing code with the following class.
-
-    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\21.txt"`)
-    ~~~csharp
-    using Microsoft.Bot.Builder.Dialogs;
-    using Microsoft.Bot.Connector;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-
-    namespace OneBank.AccountsBot.Dialogs
-    {
-        [Serializable]
-        public class InsuranceEchoDialog : IDialog<object>
-        {
-            private int count = 1;
-
-            public async Task StartAsync(IDialogContext context)
-            {
-                await Task.CompletedTask;
-                context.Wait(this.MessageReceivedAsync);
-            }
-
-            public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
-            {
-                var message = await argument;
-
-                await context.PostAsync($"[From InsuranceBot] - You said {message.Text} - Count {count++}");
-                context.Wait(this.MessageReceivedAsync);
-            }
-        }
-    }
-    ~~~
-
-3. Locate the InsuranceBotController and add the following line inside the `if condition` of the `Post` method
-
-    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\22.txt"`)
-    ~~~csharp
-    await Conversation.SendAsync(activity, () => new InsuranceEchoDialog());
-    ~~~
-
-4. That's how your Post method should look
-
-    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\23.txt"`)
-    ~~~csharp
-    [HttpPost]
-    [Route("")]
-    public async Task<HttpResponseMessage> Post([FromBody] Activity activity)
-    {
-        if (activity != null && activity.GetActivityType() == ActivityTypes.Message)
-        {
-            // New Addition
-            await Conversation.SendAsync(activity, () => new InsuranceEchoDialog());
-            // New Addition
-        }
-        else
-        {
-            this.HandleSystemMessage(activity);
-        }
-
-        return new HttpResponseMessage(HttpStatusCode.Accepted);
-    }
-    ~~~
-
 **Task V: Let's re-run the bot again and see what happens this time**
 
-1. Looks like master bot was able to forward the request to the AccountsBot, but something down the line is failing and due to this we get an error back. This happens due to the absence of Bot State in all 3 bots. So, let's move on to next exercise to develop the bot state.
+1. Looks like master bot was able to forward the request to the AccountsBot, but something down the line is failing and due to this we get an error back. This happens due to the absence of Bot State in all bots. So, let's move on to next exercise to develop the bot state.
     ![botStateError](https://asfabricstorage.blob.core.windows.net:443/images/23.png)
 
 ## Excercise 3 : Service Fabric Bot State
@@ -1214,6 +1112,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     ~~~
     > The value in the constructor of `ServiceFabricBotDataStore` must be different for all bots. 
 
+<<<<<<< HEAD
 8. In `OneBank.InsuranceBot`, locate the Startup.cs file, add the following code and resolve namespaces
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\31.txt"`)
@@ -1229,6 +1128,8 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     ~~~
     > The value in the constructor of `ServiceFabricBotDataStore` must be different for all bots.
 
+=======
+>>>>>>> 3f4c671ef53d8e02b412fbdd8ec8b0dd51714a66
 **Task II: Modify the `MasterRootDialog` class in `OneBank.MasterBot` to persist the selection made by the user in the first prompt. We should do this to maintain the sticky session between the end-user and the child bot so that all subsequent requests directly goes to child bot without performing any redirection logic again on the MasterBot.**
 
 1. In `MasterRootDialog`, locate `ResumeAfterChoiceSelection` method, replace the exisitng definitation with the following code, and resolve namespaces
@@ -1251,7 +1152,11 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
         }
         else if (choice.Equals("Buy Insurance", StringComparison.OrdinalIgnoreCase))
         {
+<<<<<<< HEAD
             await context.PostAsync("Forward me to InsuranceBot");
+=======
+            await context.PostAsync("Forward me to InsuranceBot"); 
+>>>>>>> 3f4c671ef53d8e02b412fbdd8ec8b0dd51714a66
         }
         else
         {
@@ -1277,7 +1182,11 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
         }
         else if (currentBotCtx == "Insurance")
         {
+<<<<<<< HEAD
             await context.PostAsync("Forward me to InsuranceBot");
+=======
+            await context.PostAsync("Forward me to InsuranceBot"); 
+>>>>>>> 3f4c671ef53d8e02b412fbdd8ec8b0dd51714a66
         }
         else
         {
@@ -1321,16 +1230,6 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "a8fe8368-9518-4fe
 2. Place the same values you retrieved in step 1 and paste the code snippet inside the Startup class of `AccountsBot`
 
 @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\35.txt"`)
-~~~csharp
-config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "a8fe8368-9518-4fec-9717-fdbc156febcc", MicrosoftAppPassword = "mtwyCDP267{[$wcfLEKC92(" });
-            var microsoftAppCredentials = Conversation.Container.Resolve<MicrosoftAppCredentials>();
-            microsoftAppCredentials.MicrosoftAppId = "a8fe8368-9518-4fec-9717-fdbc156febcc";
-            microsoftAppCredentials.MicrosoftAppPassword = "mtwyCDP267{[$wcfLEKC92(";
-~~~
-
-3. Similarly, place the same values you retrieved in step 1 and paste the code snippet inside the Startup class of `InsuranceBot`
-
-@[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\36.txt"`)
 ~~~csharp
 config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "a8fe8368-9518-4fec-9717-fdbc156febcc", MicrosoftAppPassword = "mtwyCDP267{[$wcfLEKC92(" });
             var microsoftAppCredentials = Conversation.Container.Resolve<MicrosoftAppCredentials>();
@@ -1445,74 +1344,3 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "a8fe8368-9518-4fe
 
 2. Now, Specify the MicrosoftAppId and MicrosoftPassword and click connect as shown in the screenshot below. This time it should be working absolutely fine.
 ![botAuthenticationPassed](https://asfabricstorage.blob.core.windows.net:443/images/28.png)
-
-### Excercise 5 : Logging
-
-**Task I:** Setup Application Insights
-
-1. Get the Azure Application Insights Instrumentation key from your Azure account as shown in Lab 2.
-
-2. Install Nuget package `ApplicationInsights.OwinExtensions`
-![nuGetForSolution](https://asfabricstorage.blob.core.windows.net:443/images/29.png)
-![aiNugetPackage](https://asfabricstorage.blob.core.windows.net:443/images/31.png)
-
-3. In all three Startup.cs files across the solution, add the below code snippet as the first step
-    
-    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\42.txt"`)
-    ~~~csharp
-    TelemetryConfiguration.Active.InstrumentationKey = "<GET_THE_KEY_FROM_AZURE_PORTAL>";
-    TelemetryConfiguration.Active.TelemetryInitializers.Add(new OperationIdTelemetryInitializer());
-    appBuilder.UseApplicationInsights(null, new OperationIdContextMiddlewareConfiguration { OperationIdFactory = IdFactory.FromHeader("X-My-Operation-Id") });
-    ~~~
-
-4. In `MasterBotRootDialog`, look for `ForwardToChildBot` method and add the below line anywhere before sending the http request.
-    
-    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\43.txt"`)
-    ~~~csharp
-    targetRequest.Headers.Add("X-My-Operation-Id", OperationContext.Get().OperationId);
-    ~~~
-
-5.  That's how your `ForwardToChildBot` method in `MasterRootDialog` should look like at the end.
-    
-    @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\44.txt"`)
-    ~~~csharp
-    public async Task<HttpResponseMessage> ForwardToChildBot(string serviceName, string path, object model, IDictionary<string, string> headers = null)
-        {
-            var clientFactory = Conversation.Container.Resolve<IHttpCommunicationClientFactory>();
-            var client = new ServicePartitionClient<HttpCommunicationClient>(clientFactory, new Uri(serviceName));
-
-            HttpResponseMessage response = null;
-
-            await client.InvokeWithRetry(async x =>
-            {
-                var targetRequest = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Post,
-                    Content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json"),
-                    RequestUri = new Uri($"{x.HttpEndPoint}/{path}")
-                };
-
-                targetRequest.Headers.Add("Authorization", RequestCallContext.AuthToken.Value);
-
-                // New Addition
-                targetRequest.Headers.Add("X-My-Operation-Id", OperationContext.Get().OperationId);
-                // New Addition
-
-                if (headers != null)
-                {
-                    foreach (var key in headers.Keys)
-                    {
-                        targetRequest.Headers.Add(key, headers[key]);
-                    }
-                }
-
-                response = await x.HttpClient.SendAsync(targetRequest);
-            });
-
-            string s = await response.Content.ReadAsStringAsync();
-            return response;
-        }
-    ~~~
-
-6. Run the bot over again and send some messages. Then wait for a few seconds and check the Request being tracked automatically in the Azure Portal as shown below
-![aiAzurePortal](https://asfabricstorage.blob.core.windows.net:443/images/32.png)
