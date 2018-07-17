@@ -20,7 +20,7 @@
 2. Name this class as `OwinCommunicationListener` and replace it with following.
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\1.txt"`)
-    ~~~csharp
+    ```nocopy
     namespace OneBank.Common
     {
         using System;
@@ -114,7 +114,7 @@
             }
         }
     }
-    ~~~
+    ```
 
 3. In Visual Studio Solution Explorer, locate the `OneBank.MasterBot` project and double click on `MasterBot.cs` file.
 4. Find the method `CreateServiceInstanceListeners`, replace the definition with following code, and resolve namespaces
