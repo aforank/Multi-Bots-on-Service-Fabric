@@ -30,7 +30,7 @@ Prior to starting these labs, you must have the following operating system and s
 ## Labs
 
 - [Pre-lab: Subscribe for Azure subscription and VSTS subscription](01-getting_started.md)
-- [Lab 1: Download code template and configure bots to be published in Fabric cluster with Actor Programming model](02-code-excercise.md)
+- [Lab: Download code template and configure bots to be published in Fabric cluster with Actor Programming model](02-code-excercise.md)
 - [Post-lab: Additional Exercise (Optional): Set up of Resources - Service Fabric Cluster, Api Management and Bot Channel Registration](03%20-setup-resources-and-environment.md)
 
 ---
