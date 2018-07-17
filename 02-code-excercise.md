@@ -20,7 +20,7 @@
 2. Name this class as `OwinCommunicationListener` and replace it with following.
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\1.txt"`)
-    ~~~csharp
+    ~~~csharp nocopy
     namespace OneBank.Common
     {
         using System;
