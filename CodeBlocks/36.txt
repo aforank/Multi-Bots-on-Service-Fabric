@@ -1,4 +1,4 @@
-config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPassword = "" });
+config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "a8fe8368-9518-4fec-9717-fdbc156febcc", MicrosoftAppPassword = "mtwyCDP267{[$wcfLEKC92(" });
             var microsoftAppCredentials = Conversation.Container.Resolve<MicrosoftAppCredentials>();
-            microsoftAppCredentials.MicrosoftAppId = "";
-            microsoftAppCredentials.MicrosoftAppPassword = "";
+            microsoftAppCredentials.MicrosoftAppId = "a8fe8368-9518-4fec-9717-fdbc156febcc";
+            microsoftAppCredentials.MicrosoftAppPassword = "mtwyCDP267{[$wcfLEKC92(";

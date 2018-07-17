@@ -1,0 +1,30 @@
+using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Connector;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace OneBank.AccountsBot.Dialogs
+{
+    [Serializable]
+    public class InsuranceEchoDialog : IDialog<object>
+    {
+        private int count = 1;
+
+        public async Task StartAsync(IDialogContext context)
+        {
+            await Task.CompletedTask;
+            context.Wait(this.MessageReceivedAsync);
+        }
+
+        public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
+        {
+            var message = await argument;
+
+            await context.PostAsync($"[From InsuranceBot] - You said {message.Text} - Count {count++}");
+            context.Wait(this.MessageReceivedAsync);
+        }
+    }
+}

@@ -4,14 +4,14 @@ public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessa
 	var key = Address.FromActivity(context.Activity);
 	var conversationData = await botDataStore.LoadAsync(key, BotStoreType.BotConversationData, CancellationToken.None);
 	string currentBotCtx = conversationData.GetProperty<string>("CurrentBotContext");
-			
+
     if (currentBotCtx == "Accounts")
     {
         await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.AccountsBot", "api/messages", context.Activity);
     }
     else if (currentBotCtx == "Insurance")
     {
-        await context.PostAsync("Forward me to InsuranceBot");
+        await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.InsuranceBot", "api/messages", context.Activity);
     }
     else
     {

@@ -1,5 +1,9 @@
 public static class Startup
 {
+    /// <summary>
+    /// The ConfigureApp
+    /// </summary>
+    /// <param name="appBuilder">The <see cref="IAppBuilder" /></param>
     public static void ConfigureApp(IAppBuilder appBuilder)
     {
         HttpConfiguration config = new HttpConfiguration();
@@ -20,21 +24,19 @@ public static class Startup
             name: "DefaultApi",
             routeTemplate: "api/{controller}/{id}",
             defaults: new { id = RouteParameter.Optional });
-
+        
         config.Filters.Add(new HandleExceptionAttribute());
         appBuilder.UseWebApi(config);
 
+        // New Addition
         Conversation.UpdateContainer(
             builder =>
             {
-                // New Addition
-                builder.Register(c => new ServiceFabricBotDataStore("Master"))
-                    .As<IBotDataStore<BotData>>().InstancePerLifetimeScope();
-                // New Addition
                 builder.Register(c => new HttpCommunicationClientFactory(new HttpClient()))
                  .As<IHttpCommunicationClientFactory>().SingleInstance();
             });
 
         config.DependencyResolver = new AutofacWebApiDependencyResolver(Conversation.Container);
+        // New Addition
     }
 }

@@ -136,7 +136,7 @@
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\3.txt"`)
     ~~~xml
-    <Endpoint Name="ServiceEndpoint" Type="Input" Protocol="http" Port="8770" />
+    <Endpoint Name="HttpServiceEndpoint" Type="Input" Protocol="http" Port="8770" />
     ~~~
 
     > Notice the `Type` and `Port` of the Master bot endpoint. These values should be different for all child bots as shown in the next step.
@@ -161,7 +161,7 @@
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\5.txt"`)
     ~~~xml
-    <Endpoint Name="ServiceEndpoint" Type="Internal" Protocol="http" Port="8771" />
+    <Endpoint Name="HttpServiceEndpoint" Type="Internal" Protocol="http" Port="8771" />
     ~~~
 
 9. Again, you would do the same for the InsuranceBot by replacing the definition for `CreateServiceInstanceListeners` with following code
@@ -564,7 +564,7 @@
             }
             else if (choice.Equals("Buy Insurance", StringComparison.OrdinalIgnoreCase))
             {
-                await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.InsuranceBot", "api/messages", context.Activity, headers);
+                await context.PostAsync("Forward me to InsuranceBot");
             }
             else
             {
@@ -760,26 +760,35 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     ~~~csharp
     using System;
 
-    namespace OneBank.BotStateActor.Interfaces
-    {
-        [Serializable]
-        public class BotStateContext
-        {
-            public string BotId { get; set; }
+	namespace OneBank.BotStateActor
+	{
+		[Serializable]
+		public class BotStateContext
+		{
+			public string BotId { get; set; }
 
-            public string UserId { get; set; }
+			public string UserId { get; set; }
 
-            public string ChannelId { get; set; }
+			public string ChannelId { get; set; }
 
-            public string ConversationId { get; set; }
+			public string ConversationId { get; set; }
 
-            public DateTime TimeStamp { get; set; }
+			public DateTime TimeStamp { get; set; }
 
-            public byte[] Data { get; set; }
+			public StateData UserData { get; set; } = new StateData();
 
-            public string ETag { get; set; }
-        }
-    }
+			public StateData ConversationData { get; set; } = new StateData();
+
+			public StateData PrivateConversationData { get; set; } = new StateData();
+		}
+		
+		public class StateData
+		{
+			public byte[] Data { get; set; }
+
+			public string ETag { get; set; }
+		}
+	}
     ~~~
     
 2. In `OneBank.BotStateActor.Interfaces` project, locate the `IBotStateActor` interface and add the following four methods
@@ -788,11 +797,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     ~~~csharp
     Task<BotStateContext> GetBotStateAsync(string key, CancellationToken cancellationToken);
 
-    Task<BotStateContext> SaveBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken);
-
-    Task InsertBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken);
-
-    Task<bool> DeleteBotStateAsync(string key, CancellationToken cancellationToken);
+	Task<BotStateContext> SaveBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken);
     ~~~
 
 3. In `OneBank.BotStateActor` project, find the `BotStateActor.cs` class and replace the existing code with following code.
@@ -822,50 +827,35 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
             }
 
             public async Task<BotStateContext> GetBotStateAsync(string key, CancellationToken cancellationToken)
-            {
-                ActorEventSource.Current.ActorMessage(this, $"Getting bot state from actor key - {key}");
-                ConditionalValue<BotStateContext> result = await this.StateManager.TryGetStateAsync<BotStateContext>(key, cancellationToken);
+			{
+				ActorEventSource.Current.ActorMessage(this, $"Getting bot state from actor key - {key}");
+				ConditionalValue<BotStateContext> result = await this.StateManager.TryGetStateAsync<BotStateContext>(key, cancellationToken);
 
-                if (result.HasValue)
-                {
-                    return result.Value;
-                }
-                else
-                {
-                    return null;
-                }
-            }
+				if (result.HasValue)
+				{
+					return result.Value;
+				}
+				else
+				{
+					return null;
+				}
+			}
 
-            public async Task<BotStateContext> SaveBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken)
-            {
-                ActorEventSource.Current.ActorMessage(this, $"Adding bot state for actor key - {key}");
-                return await this.StateManager.AddOrUpdateStateAsync(
-                    key,
-                    dialogState,
-                    (k, v) =>
-                        {
-                            return dialogState.ETag != "*" && dialogState.ETag != v.ETag ? throw new Exception() : v = dialogState;
-                        },
-                    cancellationToken);
-            }
-
-            public async Task InsertBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken)
-            {
-                ActorEventSource.Current.ActorMessage(this, $"Inserting bot state for actor key - {key}");
-                await this.StateManager.AddStateAsync(key, dialogState, cancellationToken);
-            }
-
-            public async Task<bool> DeleteBotStateAsync(string key, CancellationToken cancellationToken)
-            {
-                ActorEventSource.Current.ActorMessage(this, $"Deleting bot state for actor key - {key}");
-                return await this.StateManager.TryRemoveStateAsync(key, cancellationToken);
-            }
-
-            protected override Task OnActivateAsync()
-            {
-                ActorEventSource.Current.ActorMessage(this, "Actor activated.");
-                return Task.FromResult(0);
-            }       
+			public async Task<BotStateContext> SaveBotStateAsync(string key, BotStateContext dialogState, CancellationToken cancellationToken)
+			{
+				ActorEventSource.Current.ActorMessage(this, $"Adding bot state for actor key - {key}");
+				 return await this.StateManager.AddOrUpdateStateAsync(
+					key,
+					dialogState,
+					(k, v) =>
+					{
+						return (dialogState.UserData.ETag != "*" && dialogState.UserData.ETag != v.UserData.ETag) ||
+							   (dialogState.ConversationData.ETag != "*" && dialogState.ConversationData.ETag != v.UserData.ETag) ||
+							   (dialogState.PrivateConversationData.ETag != "*" && dialogState.PrivateConversationData.ETag != v.UserData.ETag)
+								? throw new Exception() : v = dialogState;
+					},
+					cancellationToken);
+			}  
         }
     }
     ~~~
@@ -875,161 +865,292 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\27.txt"`)
     ~~~csharp
     namespace OneBank.Common
-    {
-        using System;
-        using System.IO;
-        using System.IO.Compression;
-        using System.Threading;
-        using System.Threading.Tasks;
-        using Microsoft.Bot.Builder.Dialogs;
-        using Microsoft.Bot.Builder.Dialogs.Internals;
-        using Microsoft.Bot.Connector;
-        using Microsoft.ServiceFabric.Actors;
-        using Microsoft.ServiceFabric.Actors.Client;
-        using Newtonsoft.Json;
-        using OneBank.BotStateActor;
-        using OneBank.BotStateActor.Interfaces;
-        
-        public class ServiceFabricBotDataStore : IBotDataStore<BotData>
-        {
-            private static readonly JsonSerializerSettings SerializationSettings = new JsonSerializerSettings()
-            {
-                Formatting = Formatting.None,
-                NullValueHandling = NullValueHandling.Ignore
-            };
+	{
+		using System;
+		using System.IO;
+		using System.IO.Compression;
+		using System.Threading;
+		using System.Threading.Tasks;
+		using Microsoft.Bot.Builder.Dialogs;
+		using Microsoft.Bot.Builder.Dialogs.Internals;
+		using Microsoft.Bot.Connector;
+		using Microsoft.ServiceFabric.Actors;
+		using Microsoft.ServiceFabric.Actors.Client;
+		using Newtonsoft.Json;
+		using OneBank.BotStateActor.Interfaces;
 
-            private readonly string botName;
+		/// <summary>
+		/// Defines the <see cref="ServiceFabricBotDataStore" />
+		/// </summary>
+		public class ServiceFabricBotDataStore : IBotDataStore<BotData>
+		{
+			/// <summary>
+			/// Defines the serializationSettings
+			/// </summary>
+			private static readonly JsonSerializerSettings SerializationSettings = new JsonSerializerSettings()
+			{
+				Formatting = Formatting.None,
+				NullValueHandling = NullValueHandling.Ignore
+			};
 
-            public ServiceFabricBotDataStore(string botName)
-            {
-                this.botName = botName;
-            }
+			/// <summary>
+			/// Defines the botName
+			/// </summary>
+			private readonly string botName;
 
-            public async Task<bool> FlushAsync(IAddress key, CancellationToken cancellationToken)
-            {
-                return await Task.FromResult(true);
-            }
+			/// <summary>
+			/// The semaphore slim
+			/// </summary>
+			private readonly SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
 
-            public async Task<BotData> LoadAsync(IAddress key, BotStoreType botStoreType, CancellationToken cancellationToken)
-            {
-                var botStateActor = this.GetActorInstance(key.UserId, key.ChannelId);
-                BotStateContext botStateContext = await botStateActor.GetBotStateAsync(this.GetStateKey(key, botStoreType), cancellationToken);
+			/// <summary>
+			/// The bot state actor
+			/// </summary>
+			private IBotStateActor botStateActor;
 
-                if (botStateContext != null)
-                {
-                    return new BotData(botStateContext.ETag, Deserialize(botStateContext.Data));
-                }
-                else
-                {
-                    return new BotData(string.Empty, null);
-                }
-            }
+			/// <summary>
+			/// The store cache
+			/// </summary>
+			private StoreCacheEntry storeCache;
 
-            public async Task SaveAsync(IAddress key, BotStoreType botStoreType, BotData data, CancellationToken cancellationToken)
-            {
-                var stateKey = this.GetStateKey(key, botStoreType);
+			/// <summary>
+			/// Initializes a new instance of the <see cref="ServiceFabricBotDataStore" /> class.
+			/// </summary>
+			/// <param name="actorProxyFactory">The actor proxy factory.</param>
+			/// <param name="userProfileProvider">The <see cref="IUserProfileProvider" /></param>
+			/// <param name="logger">The logger.</param>
+			/// <param name="botName">The <see cref="string" /></param>
+			public ServiceFabricBotDataStore(string botName)
+			{
+				this.botName = botName;
+			}
 
-                BotStateContext botStateContext = new BotStateContext
-                {
-                    BotId = key.BotId,
-                    ChannelId = key.ChannelId,
-                    ConversationId = key.ConversationId,
-                    UserId = key.UserId,
-                    Data = Serialize(data.Data),
-                    ETag = data.ETag,
-                    TimeStamp = DateTime.UtcNow
-                };
+			/// <summary>
+			/// The FlushAsync
+			/// </summary>
+			/// <param name="key">The <see cref="IAddress"/></param>
+			/// <param name="cancellationToken">The <see cref="CancellationToken"/></param>
+			/// <returns>Async Task</returns>
+			public async Task<bool> FlushAsync(IAddress key, CancellationToken cancellationToken)
+			{
+				var botStateActor = await this.GetActorInstance(key.UserId, key.ChannelId);
 
-                var botStateActor = this.GetActorInstance(key.UserId, key.ChannelId);
+				if (this.storeCache != null)
+				{
+					BotStateContext botStateContext = new BotStateContext()
+					{
+						BotId = key.BotId,
+						ChannelId = key.ChannelId,
+						ConversationId = key.ConversationId,
+						UserId = key.UserId,
+						ConversationData = new StateData() { ETag = this.storeCache.ConversationData.ETag, Data = Serialize(this.storeCache.ConversationData.Data) },
+						PrivateConversationData = new StateData() { ETag = this.storeCache.PrivateConversationData.ETag, Data = Serialize(this.storeCache.PrivateConversationData.Data) },
+						UserData = new StateData() { ETag = this.storeCache.UserData.ETag, Data = Serialize(this.storeCache.UserData.Data) },
+						TimeStamp = DateTime.UtcNow
+					};
 
-                if (string.IsNullOrEmpty(botStateContext.ETag))
-                {
-                    botStateContext.ETag = Guid.NewGuid().ToString();
-                    await botStateActor.SaveBotStateAsync(stateKey, botStateContext, cancellationToken);
-                }
-                else if (botStateContext.ETag == "*")
-                {
-                    if (botStateContext.Data != null)
-                    {
-                        await botStateActor.SaveBotStateAsync(stateKey, botStateContext, cancellationToken);
-                    }
-                    else
-                    {
-                        await botStateActor.DeleteBotStateAsync(stateKey, cancellationToken);
-                    }
-                }
-                else
-                {
-                    if (botStateContext.Data != null)
-                    {
-                        await botStateActor.SaveBotStateAsync(stateKey, botStateContext, cancellationToken);
-                    }
-                    else
-                    {
-                        await botStateActor.DeleteBotStateAsync(stateKey, cancellationToken);
-                    }
-                }
-            }
+					this.storeCache = null;
+					await botStateActor.SaveBotStateAsync(this.GetStateKey(key), botStateContext, cancellationToken);
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
 
-            private static byte[] Serialize(object data)
-            {
-                using (var cmpStream = new MemoryStream())
-                using (var stream = new GZipStream(cmpStream, CompressionMode.Compress))
-                using (var streamWriter = new StreamWriter(stream))
-                {
-                    var serializedJSon = JsonConvert.SerializeObject(data, SerializationSettings);
-                    streamWriter.Write(serializedJSon);
-                    streamWriter.Close();
-                    stream.Close();
-                    return cmpStream.ToArray();
-                }
-            }
+			/// <summary>
+			/// The LoadAsync
+			/// </summary>
+			/// <param name="key">The <see cref="IAddress"/></param>
+			/// <param name="botStoreType">The <see cref="BotStoreType"/></param>
+			/// <param name="cancellationToken">The <see cref="CancellationToken"/></param>
+			/// <returns>The <see cref="Task{BotData}"/></returns>
+			public async Task<BotData> LoadAsync(IAddress key, BotStoreType botStoreType, CancellationToken cancellationToken)
+			{
+				await this.semaphoreSlim.WaitAsync();
 
-            private static object Deserialize(byte[] bytes)
-            {
-                using (var stream = new MemoryStream(bytes))
-                using (var gz = new GZipStream(stream, CompressionMode.Decompress))
-                using (var streamReader = new StreamReader(gz))
-                {
-                    return JsonConvert.DeserializeObject(streamReader.ReadToEnd());
-                }
-            }
+				try
+				{
+					if (this.storeCache != null)
+					{
+						return this.GetFromStoreCache(botStoreType);
+					}
+					else
+					{
+						var botStateActor = await this.GetActorInstance(key.UserId, key.ChannelId);
+						var botStateContext = await botStateActor.GetBotStateAsync(this.GetStateKey(key), cancellationToken);
 
-            private IBotStateActor GetActorInstance(string userId, string channelId)
-            {
-                return ActorProxy.Create<IBotStateActor>(new ActorId($"{userId}-{channelId}"), new Uri("fabric:/OneBank.FabricApp/BotStateActorService"));
-            }
+						this.storeCache = new StoreCacheEntry();
 
-            private string GetStateKey(IAddress key, BotStoreType botStoreType)
-            {
-                switch (botStoreType)
-                {
-                    case BotStoreType.BotConversationData:
-                        return $"{this.botName}:{key.ChannelId}:conversation:{key.ConversationId}";
+						if (botStateContext != null)
+						{
+							this.storeCache.ConversationData = new BotData(botStateContext.ConversationData.ETag, Deserialize(botStateContext.ConversationData.Data));
+							this.storeCache.PrivateConversationData = new BotData(botStateContext.PrivateConversationData.ETag, Deserialize(botStateContext.PrivateConversationData.Data));
+							this.storeCache.UserData = new BotData(botStateContext.UserData.ETag, Deserialize(botStateContext.UserData.Data));
+						}
+						else
+						{
+							this.storeCache.ConversationData = new BotData("*", null);
+							this.storeCache.PrivateConversationData = new BotData("*", null);
+							this.storeCache.UserData = new BotData("*", null);
+						}
 
-                    case BotStoreType.BotUserData:
-                        return $"{this.botName}:{key.ChannelId}:user:{key.ConversationId}";
+						return this.GetFromStoreCache(botStoreType);
+					}
+				}
+				finally
+				{
+					this.semaphoreSlim.Release();
+				}
+			}
 
-                    case BotStoreType.BotPrivateConversationData:
-                        return $"{this.botName}:{key.ChannelId}:private:{key.ConversationId}:{key.UserId}";
+			/// <summary>
+			/// The SaveAsync
+			/// </summary>
+			/// <param name="key">The <see cref="IAddress"/></param>
+			/// <param name="botStoreType">The <see cref="BotStoreType"/></param>
+			/// <param name="data">The <see cref="BotData"/></param>
+			/// <param name="cancellationToken">The <see cref="CancellationToken"/></param>
+			/// <returns>The <see cref="Task"/></returns>
+			public async Task SaveAsync(IAddress key, BotStoreType botStoreType, BotData data, CancellationToken cancellationToken)
+			{
+				if (this.storeCache == null)
+				{
+					this.storeCache = new StoreCacheEntry();
+				}
 
-                    default:
-                        throw new ArgumentException("Unsupported bot store type!");
-                }
-            }
-        }
-    }
+				switch (botStoreType)
+				{
+					case BotStoreType.BotConversationData:
+						this.storeCache.ConversationData = data;
+						break;
+					case BotStoreType.BotPrivateConversationData:
+						this.storeCache.PrivateConversationData = data;
+						break;
+					case BotStoreType.BotUserData:
+						this.storeCache.UserData = data;
+						break;
+					default:
+						throw new ArgumentException("Unsupported bot store type!");
+				}
+
+				await Task.CompletedTask;
+			}
+
+			/// <summary>
+			/// The Serialize
+			/// </summary>
+			/// <param name="data">The <see cref="object"/></param>
+			/// <returns>Serialized data</returns>
+			private static byte[] Serialize(object data)
+			{
+				using (var cmpStream = new MemoryStream())
+				using (var stream = new GZipStream(cmpStream, CompressionMode.Compress))
+				using (var streamWriter = new StreamWriter(stream))
+				{
+					var serializedJSon = JsonConvert.SerializeObject(data, SerializationSettings);
+					streamWriter.Write(serializedJSon);
+					streamWriter.Close();
+					stream.Close();
+					return cmpStream.ToArray();
+				}
+			}
+
+			/// <summary>
+			/// The Deserialize
+			/// </summary>
+			/// <param name="bytes">Serialized data</param>
+			/// <returns>The <see cref="object"/></returns>
+			private static object Deserialize(byte[] bytes)
+			{
+				using (var stream = new MemoryStream(bytes))
+				using (var gz = new GZipStream(stream, CompressionMode.Decompress))
+				using (var streamReader = new StreamReader(gz))
+				{
+					return JsonConvert.DeserializeObject(streamReader.ReadToEnd());
+				}
+			}
+
+			/// <summary>
+			/// The GetActorInstance
+			/// </summary>
+			/// <param name="userId">The <see cref="string"/>User ID</param>
+			/// <param name="channelId">The <see cref="string"/>Channel ID</param>
+			/// <returns>The <see cref="Task{IBotStateActor}"/></returns>
+			private async Task<IBotStateActor> GetActorInstance(string userId, string channelId)
+			{
+				if (this.botStateActor == null)
+				{
+					this.botStateActor = ActorProxy.Create<IBotStateActor>(new ActorId($"{userId}-{channelId}"), new Uri("fabric:/OneBank.FabricApp/BotStateActorService"));
+				}
+
+				return this.botStateActor;
+			}
+
+			/// <summary>
+			/// The GetStateKey
+			/// </summary>
+			/// <param name="key">The <see cref="IAddress" /></param>
+			/// <returns>
+			/// The <see cref="string" />
+			/// </returns>
+			private string GetStateKey(IAddress key)
+			{
+				return $"{this.botName}{key.ConversationId}";
+			}
+
+			/// <summary>
+			/// Gets from current bot state context.
+			/// </summary>
+			/// <param name="botStoreType">Type of the bot store.</param>
+			/// <returns>Bot data</returns>
+			/// <exception cref="System.ArgumentException">Unsupported bot store type!</exception>
+			private BotData GetFromStoreCache(BotStoreType botStoreType)
+			{
+				switch (botStoreType)
+				{
+					case BotStoreType.BotConversationData:
+						return this.storeCache.ConversationData;
+
+					case BotStoreType.BotUserData:
+						return this.storeCache.UserData;
+
+					case BotStoreType.BotPrivateConversationData:
+						return this.storeCache.PrivateConversationData;
+
+					default:
+						throw new ArgumentException("Unsupported bot store type!");
+				}
+			}
+		}
+
+		public class StoreCacheEntry
+		{
+			/// <summary>
+			/// Gets or sets the bot conversation data.
+			/// </summary>
+			public BotData ConversationData { get; set; }
+
+			/// <summary>
+			/// Gets or sets the bot private conversation data.
+			/// </summary>
+			public BotData PrivateConversationData { get; set; }
+
+			/// <summary>
+			/// Gets or sets the bot user data.
+			/// </summary>
+			public BotData UserData { get; set; }
+		}
+	}
     ~~~
 
 5. In `OneBank.MasterBot`, find the Startup.cs file, look for Conversation.UpdateContainer section, add the following code inside the `builder` expression and finally resolve namespaces
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\28.txt"`)
     ~~~csharp
-    var store = new ServiceFabricBotDataStore("Master");
-                        builder.Register(c => new CachingBotDataStore(store, CachingBotDataStoreConsistencyPolicy.LastWriteWins))
-                            .As<IBotDataStore<BotData>>()
-                            .AsSelf()
-                            .InstancePerLifetimeScope();
+    builder.Register(c => new ServiceFabricBotDataStore("Master"))
+                    .As<IBotDataStore<BotData>>().InstancePerLifetimeScope();
     ~~~ 
 
 6. That's how your Startup class of MasterBot should look like.
@@ -1066,11 +1187,8 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
                 builder =>
                 {
                     // New Addition
-                    var store = new ServiceFabricBotDataStore("Master");
-                    builder.Register(c => new CachingBotDataStore(store, CachingBotDataStoreConsistencyPolicy.LastWriteWins))
-                        .As<IBotDataStore<BotData>>()
-                        .AsSelf()
-                        .InstancePerLifetimeScope();
+                    builder.Register(c => new ServiceFabricBotDataStore("Master"))
+                    .As<IBotDataStore<BotData>>().InstancePerLifetimeScope();
                     // New Addition
                     builder.Register(c => new HttpCommunicationClientFactory(new HttpClient()))
                      .As<IHttpCommunicationClientFactory>().SingleInstance();
@@ -1088,11 +1206,8 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     Conversation.UpdateContainer(
                     builder =>
                     {
-                        var store = new ServiceFabricBotDataStore("Accounts");
-                        builder.Register(c => new CachingBotDataStore(store, CachingBotDataStoreConsistencyPolicy.LastWriteWins))
-                            .As<IBotDataStore<BotData>>()
-                            .AsSelf()
-                            .InstancePerLifetimeScope();
+                        builder.Register(c => new ServiceFabricBotDataStore("Accounts"))
+									.As<IBotDataStore<BotData>>().InstancePerLifetimeScope();
                     });
 
     config.DependencyResolver = new AutofacWebApiDependencyResolver(Conversation.Container);
@@ -1106,11 +1221,8 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     Conversation.UpdateContainer(
                     builder =>
                     {
-                        var store = new ServiceFabricBotDataStore("Insurance");
-                        builder.Register(c => new CachingBotDataStore(store, CachingBotDataStoreConsistencyPolicy.LastWriteWins))
-                            .As<IBotDataStore<BotData>>()
-                            .AsSelf()
-                            .InstancePerLifetimeScope();
+                        builder.Register(c => new ServiceFabricBotDataStore("Insurance"))
+								.As<IBotDataStore<BotData>>().InstancePerLifetimeScope();
                     });
 
     config.DependencyResolver = new AutofacWebApiDependencyResolver(Conversation.Container);
@@ -1139,13 +1251,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
         }
         else if (choice.Equals("Buy Insurance", StringComparison.OrdinalIgnoreCase))
         {
-            var botDataStore = Conversation.Container.Resolve<IBotDataStore<BotData>>();
-            var key = Address.FromActivity(context.Activity);
-            var conversationData = await botDataStore.LoadAsync(key, BotStoreType.BotConversationData, CancellationToken.None);
-            conversationData.SetProperty<string>("CurrentBotContext", "Insurance");
-            await botDataStore.SaveAsync(key, BotStoreType.BotConversationData, conversationData, CancellationToken.None);
-
-            await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.InsuranceBot", "api/messages", context.Activity);
+            await context.PostAsync("Forward me to InsuranceBot");
         }
         else
         {
@@ -1160,15 +1266,18 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     ~~~csharp
     public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
     {
-        var currentBotCtx = context.ConversationData.GetValueOrDefault<string>("CurrentBotContext");
-
+        var botDataStore = Conversation.Container.Resolve<IBotDataStore<BotData>>();
+		var key = Address.FromActivity(context.Activity);
+		var conversationData = await botDataStore.LoadAsync(key, BotStoreType.BotConversationData, CancellationToken.None);
+		string currentBotCtx = conversationData.GetProperty<string>("CurrentBotContext");
+		
         if (currentBotCtx == "Accounts")
         {
             await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.AccountsBot", "api/messages", context.Activity);
         }
         else if (currentBotCtx == "Insurance")
         {
-            await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.InsuranceBot", "api/messages", context.Activity);
+            await context.PostAsync("Forward me to InsuranceBot");
         }
         else
         {

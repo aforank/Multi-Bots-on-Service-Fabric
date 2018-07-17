@@ -14,7 +14,13 @@ private async Task ResumeAfterChoiceSelection(IDialogContext context, IAwaitable
     }
     else if (choice.Equals("Buy Insurance", StringComparison.OrdinalIgnoreCase))
     {
-        await context.PostAsync("Forward me to InsuranceBot");
+        var botDataStore = Conversation.Container.Resolve<IBotDataStore<BotData>>();
+        var key = Address.FromActivity(context.Activity);
+        var conversationData = await botDataStore.LoadAsync(key, BotStoreType.BotConversationData, CancellationToken.None);
+        conversationData.SetProperty<string>("CurrentBotContext", "Insurance");
+        await botDataStore.SaveAsync(key, BotStoreType.BotConversationData, conversationData, CancellationToken.None);
+
+        await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.InsuranceBot", "api/messages", context.Activity);
     }
     else
     {

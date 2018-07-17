@@ -25,7 +25,7 @@ public class MasterRootDialog : IDialog<object>
         }
         else if (choice.Equals("Buy Insurance", StringComparison.OrdinalIgnoreCase))
         {
-            await context.PostAsync("Forward me to InsuranceBot");
+            await ForwardToChildBot("fabric:/OneBank.FabricApp/OneBank.InsuranceBot", "api/messages", context.Activity, headers);
         }
         else
         {

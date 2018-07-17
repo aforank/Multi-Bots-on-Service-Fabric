@@ -1,0 +1,19 @@
+ [HttpPost]
+    [Route("")]
+    public async Task<HttpResponseMessage> Post([FromBody] Activity activity)
+    {
+        // New Addition
+        RequestCallContext.AuthToken.Value = $"Bearer {this.Request.Headers.Authorization.Parameter}";
+        // New Addition
+
+        if (activity != null && activity.GetActivityType() == ActivityTypes.Message)
+        {
+            await Conversation.SendAsync(activity, () => new MasterRootDialog());
+        }
+        else
+        {
+            this.HandleSystemMessage(activity);
+        }
+
+        return new HttpResponseMessage(HttpStatusCode.Accepted);
+    }
