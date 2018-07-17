@@ -21,7 +21,7 @@
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\1.txt"`)
     ```nocopy
-    namespace OneBank.Common
+     namespace OneBank.Common
     {
         using System;
         using System.Fabric;
@@ -1231,8 +1231,3 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "a8fe8368-9518-4fe
 2. Now, Specify the MicrosoftAppId and MicrosoftPassword and click connect as shown in the screenshot below. This time it should be working absolutely fine.
 ![botAuthenticationPassed](https://asfabricstorage.blob.core.windows.net:443/images/28.png)
 
-{
-"markdown.styles" : [
-"Style.css"
-]
-}
