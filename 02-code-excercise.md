@@ -777,58 +777,27 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 		using Newtonsoft.Json;
 		using OneBank.BotStateActor.Interfaces;
 
-		/// <summary>
-		/// Defines the <see cref="ServiceFabricBotDataStore" />
-		/// </summary>
 		public class ServiceFabricBotDataStore : IBotDataStore<BotData>
 		{
-			/// <summary>
-			/// Defines the serializationSettings
-			/// </summary>
 			private static readonly JsonSerializerSettings SerializationSettings = new JsonSerializerSettings()
 			{
 				Formatting = Formatting.None,
 				NullValueHandling = NullValueHandling.Ignore
 			};
 
-			/// <summary>
-			/// Defines the botName
-			/// </summary>
 			private readonly string botName;
 
-			/// <summary>
-			/// The semaphore slim
-			/// </summary>
 			private readonly SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
 
-			/// <summary>
-			/// The bot state actor
-			/// </summary>
 			private IBotStateActor botStateActor;
 
-			/// <summary>
-			/// The store cache
-			/// </summary>
 			private StoreCacheEntry storeCache;
 
-			/// <summary>
-			/// Initializes a new instance of the <see cref="ServiceFabricBotDataStore" /> class.
-			/// </summary>
-			/// <param name="actorProxyFactory">The actor proxy factory.</param>
-			/// <param name="userProfileProvider">The <see cref="IUserProfileProvider" /></param>
-			/// <param name="logger">The logger.</param>
-			/// <param name="botName">The <see cref="string" /></param>
 			public ServiceFabricBotDataStore(string botName)
 			{
 				this.botName = botName;
 			}
 
-			/// <summary>
-			/// The FlushAsync
-			/// </summary>
-			/// <param name="key">The <see cref="IAddress"/></param>
-			/// <param name="cancellationToken">The <see cref="CancellationToken"/></param>
-			/// <returns>Async Task</returns>
 			public async Task<bool> FlushAsync(IAddress key, CancellationToken cancellationToken)
 			{
 				var botStateActor = await this.GetActorInstance(key.UserId, key.ChannelId);
@@ -857,13 +826,6 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 				}
 			}
 
-			/// <summary>
-			/// The LoadAsync
-			/// </summary>
-			/// <param name="key">The <see cref="IAddress"/></param>
-			/// <param name="botStoreType">The <see cref="BotStoreType"/></param>
-			/// <param name="cancellationToken">The <see cref="CancellationToken"/></param>
-			/// <returns>The <see cref="Task{BotData}"/></returns>
 			public async Task<BotData> LoadAsync(IAddress key, BotStoreType botStoreType, CancellationToken cancellationToken)
 			{
 				await this.semaphoreSlim.WaitAsync();
@@ -903,14 +865,6 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 				}
 			}
 
-			/// <summary>
-			/// The SaveAsync
-			/// </summary>
-			/// <param name="key">The <see cref="IAddress"/></param>
-			/// <param name="botStoreType">The <see cref="BotStoreType"/></param>
-			/// <param name="data">The <see cref="BotData"/></param>
-			/// <param name="cancellationToken">The <see cref="CancellationToken"/></param>
-			/// <returns>The <see cref="Task"/></returns>
 			public async Task SaveAsync(IAddress key, BotStoreType botStoreType, BotData data, CancellationToken cancellationToken)
 			{
 				if (this.storeCache == null)
@@ -936,11 +890,6 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 				await Task.CompletedTask;
 			}
 
-			/// <summary>
-			/// The Serialize
-			/// </summary>
-			/// <param name="data">The <see cref="object"/></param>
-			/// <returns>Serialized data</returns>
 			private static byte[] Serialize(object data)
 			{
 				using (var cmpStream = new MemoryStream())
@@ -955,11 +904,6 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 				}
 			}
 
-			/// <summary>
-			/// The Deserialize
-			/// </summary>
-			/// <param name="bytes">Serialized data</param>
-			/// <returns>The <see cref="object"/></returns>
 			private static object Deserialize(byte[] bytes)
 			{
 				using (var stream = new MemoryStream(bytes))
@@ -970,12 +914,6 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 				}
 			}
 
-			/// <summary>
-			/// The GetActorInstance
-			/// </summary>
-			/// <param name="userId">The <see cref="string"/>User ID</param>
-			/// <param name="channelId">The <see cref="string"/>Channel ID</param>
-			/// <returns>The <see cref="Task{IBotStateActor}"/></returns>
 			private async Task<IBotStateActor> GetActorInstance(string userId, string channelId)
 			{
 				if (this.botStateActor == null)
@@ -986,24 +924,11 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 				return this.botStateActor;
 			}
 
-			/// <summary>
-			/// The GetStateKey
-			/// </summary>
-			/// <param name="key">The <see cref="IAddress" /></param>
-			/// <returns>
-			/// The <see cref="string" />
-			/// </returns>
 			private string GetStateKey(IAddress key)
 			{
 				return $"{this.botName}{key.ConversationId}";
 			}
 
-			/// <summary>
-			/// Gets from current bot state context.
-			/// </summary>
-			/// <param name="botStoreType">Type of the bot store.</param>
-			/// <returns>Bot data</returns>
-			/// <exception cref="System.ArgumentException">Unsupported bot store type!</exception>
 			private BotData GetFromStoreCache(BotStoreType botStoreType)
 			{
 				switch (botStoreType)
@@ -1025,19 +950,10 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 
 		public class StoreCacheEntry
 		{
-			/// <summary>
-			/// Gets or sets the bot conversation data.
-			/// </summary>
 			public BotData ConversationData { get; set; }
 
-			/// <summary>
-			/// Gets or sets the bot private conversation data.
-			/// </summary>
 			public BotData PrivateConversationData { get; set; }
 
-			/// <summary>
-			/// Gets or sets the bot user data.
-			/// </summary>
 			public BotData UserData { get; set; }
 		}
 	}
