@@ -31,7 +31,7 @@
         using Microsoft.Owin.Hosting;
         using Microsoft.ServiceFabric.Services.Communication.Runtime;
         using Owin;
-
+	
         public class OwinCommunicationListener : ICommunicationListener
         {
             private readonly string endpointName;
