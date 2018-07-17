@@ -752,9 +752,9 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 4. In `OneBank.Common` project create a new class by the name of `ServiceFabricBotDataStore` and replace the exisitng code with following
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\27.txt"`)
+    
      ```nocopy
-     
-      using System;
+     using System;
      using System.IO;
      using System.IO.Compression;
      using System.Threading;
