@@ -20,7 +20,7 @@
 2. Name this class as `OwinCommunicationListener` and replace it with following.
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\1.txt"`)
-    ```nocopy
+    ~~~csharp
     namespace OneBank.Common
     {
         using System;
@@ -114,13 +114,13 @@
             }
         }
     }
-    ```
+    ~~~
 
 3. In Visual Studio Solution Explorer, locate the `OneBank.MasterBot` project and double click on `MasterBot.cs` file.
 4. Find the method `CreateServiceInstanceListeners`, replace the definition with following code, and resolve namespaces
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\2.txt"`)
-    ```nocopy
+    ~~~csharp
     protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
     {
         var endpoints = this.Context.CodePackageActivationContext.GetEndpoints()
@@ -130,7 +130,7 @@
         return endpoints.Select(endpoint => new ServiceInstanceListener(
             context => new OwinCommunicationListener(Startup.ConfigureApp, this.Context, endpoint), endpoint));
     }
-    ```
+    ~~~
 
 5. In `OneBank.MasterBot` project, locate the `ServiceManifest.xml` file under `PackageRoot` folder and add an HTTP endpoint inside the `<Endpoints>` element.
 
