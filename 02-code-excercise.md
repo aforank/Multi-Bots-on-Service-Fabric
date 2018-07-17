@@ -20,7 +20,7 @@
 2. Name this class as `OwinCommunicationListener` and replace it with following.
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\1.txt"`)
-    ~~~nocopy csharp
+    ~~~csharp
     namespace OneBank.Common
     {
         using System;
@@ -241,7 +241,7 @@
         }
     }
     ~~~
-3. Locate the `MasterBotController` under `Controllers` folder, add the following line inside if condition of the Post method, and resolve namespaces
+3. In `OneBank.MasterBot` project, locate the `MasterBotController` under `Controllers` folder, add the following line inside `if condition` of the Post method, and resolve namespaces
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\45.txt"`)
     ~~~csharp
@@ -643,7 +643,7 @@
     }
     ~~~
 
-3. Locate the `AccountsBotController` under `Controllers` folder and add the following line inside if condition of the Post method
+3. Locate the `AccountsBotController` under `Controllers` folder and add the following line inside `if condition` of the Post method
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\19.txt"`)
     ~~~csharp
@@ -712,7 +712,7 @@
     }
     ~~~
 
-3. Locate the InsuranceBotController and add the following line inside the `if` condition of the `Post` method
+3. Locate the InsuranceBotController and add the following line inside the `if condition` of the `Post` method
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\22.txt"`)
     ~~~csharp
@@ -754,13 +754,13 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 
 **Task I: Create Stateful Reliable Actors** 
 
-1. In `OneBank.BotStateActor.Interface`, create a new model class by the name of `BotStateContext` to store the BotData.
+1. In `OneBank.BotStateActor.Interface` project, create a new model class by the name of `BotStateContext` to store the BotData.
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\25.txt"`)
     ~~~csharp
     using System;
 
-    namespace OneBank.BotStateActor
+    namespace OneBank.BotStateActor.Interfaces
     {
         [Serializable]
         public class BotStateContext
@@ -782,7 +782,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     }
     ~~~
     
-2. In `OneBank.BotStateActor.Interface`, locate the `IBotStateActor` interface and add the following four methods
+2. In `OneBank.BotStateActor.Interfaces` project, locate the `IBotStateActor` interface and add the following four methods
 
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\24.txt"`)
     ~~~csharp
@@ -1021,7 +1021,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     }
     ~~~
 
-5. In `OneBank.MasterBot`, find the Startup.cs file, under Conversation.UpdateContainer section, add the following code and resolve namespaces
+5. In `OneBank.MasterBot`, find the Startup.cs file, look for Conversation.UpdateContainer section, add the following code inside the `builder` expression and finally resolve namespaces
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\28.txt"`)
     ~~~csharp
@@ -1081,7 +1081,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     }
     ~~~
 
-7. In `OneBank.AccountsBot`, find the Startup.cs file, under Conversation.UpdateContainer section, add the following code and resolve namespaces
+7. In `OneBank.AccountsBot`, find the Startup.cs file, add the following code and resolve namespaces
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\30.txt"`)
     ~~~csharp
@@ -1099,7 +1099,7 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
     ~~~
     > The value in the constructor of `ServiceFabricBotDataStore` must be different for all bots. 
 
-8. In `OneBank.InsuranceBot`, locate the Startup.cs file, under Conversation.UpdateContainer section, add the following code and resolve namespaces
+8. In `OneBank.InsuranceBot`, locate the Startup.cs file, add the following code and resolve namespaces
     
     @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\31.txt"`)
     ~~~csharp
@@ -1199,39 +1199,34 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 
 **Task I: Modify StartUp.cs class of MasterBot and replace the MicrosoftAppId and MicrosoftAppPassword with the actual value.**
 
-1. Collect the value of MicrosoftAppId and MicrosoftAppPassword from Azure portal (As shown in Lab 2) or you may use these values for testing purposes.
-    
-    AppId - a8fe8368-9518-4fec-9717-fdbc156febcc
-    AppPassword - wwcxoNKF36?{hqNPEU484%%
-
-2. Place the value of MicrosoftAppId and MicrosoftAppPassword in the double quotes below and paste the code snippet inside the Startup class of `MasterBot`
+1. In `OneBank.MasterBot` project, look for the StartUp.cs file and place the below code after the `Conversation.UpdateContainer` block. Please note that we are using the pre-created AppId and AppPassword in this lab but you are free to replace the values with your own AppId and AppPassword which you can get from Azure Portal as shown in Lab 2. 
 
 @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\34.txt"`)
 ~~~csharp
-config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPassword = "" });
+config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "a8fe8368-9518-4fec-9717-fdbc156febcc", MicrosoftAppPassword = "mtwyCDP267{[$wcfLEKC92(" });
             var microsoftAppCredentials = Conversation.Container.Resolve<MicrosoftAppCredentials>();
-            microsoftAppCredentials.MicrosoftAppId = "";
-            microsoftAppCredentials.MicrosoftAppPassword = "";
+            microsoftAppCredentials.MicrosoftAppId = "a8fe8368-9518-4fec-9717-fdbc156febcc";
+            microsoftAppCredentials.MicrosoftAppPassword = "mtwyCDP267{[$wcfLEKC92(";
 ~~~
 
-3. Place the same values you retrieved in step 1 and paste the code snippet inside the Startup class of `AccountsBot`
+2. Place the same values you retrieved in step 1 and paste the code snippet inside the Startup class of `AccountsBot`
 
 @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\35.txt"`)
 ~~~csharp
-config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPassword = "" });
+config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "a8fe8368-9518-4fec-9717-fdbc156febcc", MicrosoftAppPassword = "mtwyCDP267{[$wcfLEKC92(" });
             var microsoftAppCredentials = Conversation.Container.Resolve<MicrosoftAppCredentials>();
-            microsoftAppCredentials.MicrosoftAppId = "";
-            microsoftAppCredentials.MicrosoftAppPassword = "";
+            microsoftAppCredentials.MicrosoftAppId = "a8fe8368-9518-4fec-9717-fdbc156febcc";
+            microsoftAppCredentials.MicrosoftAppPassword = "mtwyCDP267{[$wcfLEKC92(";
 ~~~
 
 3. Similarly, place the same values you retrieved in step 1 and paste the code snippet inside the Startup class of `InsuranceBot`
 
 @[Copy](`start Notepad.exe "C:\AIP-APPS-TW200\TW\CodeBlocks\36.txt"`)
 ~~~csharp
-config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "", MicrosoftAppPassword = "" });
+config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "a8fe8368-9518-4fec-9717-fdbc156febcc", MicrosoftAppPassword = "mtwyCDP267{[$wcfLEKC92(" });
             var microsoftAppCredentials = Conversation.Container.Resolve<MicrosoftAppCredentials>();
-            microsoftAppCredentials.MicrosoftAppId = "";
-            microsoftAppCredentials.MicrosoftAppPassword = "";
+            microsoftAppCredentials.MicrosoftAppId = "a8fe8368-9518-4fec-9717-fdbc156febcc";
+            microsoftAppCredentials.MicrosoftAppPassword = "mtwyCDP267{[$wcfLEKC92(";
 ~~~
 
 **Task II: Setup Call Context**
