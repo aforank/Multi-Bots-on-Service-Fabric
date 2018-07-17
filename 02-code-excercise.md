@@ -1230,3 +1230,11 @@ config.Filters.Add(new BotAuthentication() { MicrosoftAppId = "a8fe8368-9518-4fe
 
 2. Now, Specify the MicrosoftAppId and MicrosoftPassword and click connect as shown in the screenshot below. This time it should be working absolutely fine.
 ![botAuthenticationPassed](https://asfabricstorage.blob.core.windows.net:443/images/28.png)
+
+
+<style>
+code {
+	padding-left : 30px;
+	pointer-events :none;
+}
+</style>
