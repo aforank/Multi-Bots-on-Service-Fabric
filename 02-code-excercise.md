@@ -179,6 +179,13 @@
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
+    using Autofac;
+    using System.Net.Http;
+    using Microsoft.ServiceFabric.Services.Communication.Client;
+    using OneBank.Common;
+    using Newtonsoft.Json;
+    using Microsoft.Bot.Builder.Dialogs.Internals;
+    using System.Threading;
 
      namespace OneBank.MasterBot.Dialogs
      {
@@ -1225,9 +1232,11 @@ And for this, you will be leveraging the Actor programming model of Azure Servic
 
 2. Now, Specify the MicrosoftAppId and MicrosoftPassword as shown below and click connect as shown in the screenshot below. This time it should be working absolutely fine.
 
-	MicrosoftAppId - **a8fe8368-9518-4fec-9717-fdbc156febcc**
+	MicrosoftAppId - `a8fe8368-9518-4fec-9717-fdbc156febcc`
 	
-	MicrosoftPassword - **mtwyCDP267{[$wcfLEKC92(**
+	MicrosoftPassword - `mtwyCDP267{[$wcfLEKC92(`
 	
 ![botAuthenticationPassed](https://asfabricstorage.blob.core.windows.net:443/images/28.png)
+
+3. That's it. You are all done!
 
