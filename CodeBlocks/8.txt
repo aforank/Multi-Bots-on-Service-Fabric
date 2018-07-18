@@ -6,6 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
+using System.Net.Http;
+using Microsoft.ServiceFabric.Services.Communication.Client;
+using OneBank.Common;
+using Newtonsoft.Json;
+using Microsoft.Bot.Builder.Dialogs.Internals;
+using System.Threading;
 
 namespace OneBank.MasterBot.Dialogs
 {
